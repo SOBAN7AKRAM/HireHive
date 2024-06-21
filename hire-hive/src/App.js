@@ -1,18 +1,25 @@
 
 import './App.css';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from 'react'
+import Footer from './components/Footer'
+import LandingPage from './components/LandingPage'
 
 function App() {
-  const [data, setData] = useState('');
-  useEffect(() => {
-    fetch("http://localhost:8000/index")
-      .then(response => response.json())
-      .then(data => setData(data.hello))
-      .catch(err => console.log(err));
-  }, []);
+  
   return (
     <div className="App">
-      <h1>{data}</h1>
+      <BrowserRouter>
+      <div className="app-container">
+        <Footer />
+        <div className="content-wrap">
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            {/* <Route path="/other" element={<OtherPage />} /> */}
+          </Routes>
+        </div>
+      </div>
+    </BrowserRouter>
     </div>
   );
 }
