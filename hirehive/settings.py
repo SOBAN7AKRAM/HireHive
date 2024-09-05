@@ -28,6 +28,17 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+# for email email configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'hirehive3@gmail.com'
+EMAIL_HOST_PASSWORD = 'h1i2r3e-'
+DEFAULT_FROM_EMAIL = 'hirehive3@gmail.com'
+
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -51,10 +62,18 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:3000',  # React development server
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',  # React app's URL
 ]
 
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',  # React app's URL
+]
+
+# Ensure CSRF cookies are set correctly
+CSRF_COOKIE_HTTPONLY = False
 
 ROOT_URLCONF = 'hirehive.urls'
 

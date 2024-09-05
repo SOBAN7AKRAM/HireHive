@@ -1,9 +1,25 @@
+$green: #108A00;
+$lightGreen: #1ec109;
+$lightSilver: #f0eeee;
+$Silver: #e3e0e0;
+$darkSilver: #CED2D4;
+$light: #D9D9D9;
+body {
+  font-family: 'Roboto', 'Arial', 'Helvetica', sans-serif;
+}
 .logo{
     width: 8rem;
     height: 2rem;
 }
+.logoDiv{
+  margin-top: 1rem;
+  margin-left: 1rem;
+}
+.nav-link{
+  font-weight: 500;
+}
 .nav-link:hover{
-    color: #14A800;
+    color: $green;
 }
 .app-container {
     display: flex;
@@ -12,5 +28,353 @@
   }
 .content-wrap {
     flex: 1;
-    padding-top: 4rem;
+    padding-top: 2rem;
   }
+.searchInput{
+  border-radius: 2rem;
+}
+.btn{
+  background-color: $green;
+  border: none;
+}
+.btn:hover{
+  background-color: $lightGreen;
+  border: none;
+  box-sizing: border-box;
+  outline: none;
+}
+.searchIcon{
+  height: 1.3rem;
+  width: 1.3rem;
+  position: absolute;
+  left: 3%;
+  top: 25%;
+}
+.line{
+  width: 1px;
+  height: 1.5rem;
+  background-color: $darkSilver;
+  margin-top: 0.4rem;
+  margin-right: 0.5rem;
+}
+#searchInput{
+  padding: 0.4rem 2.2rem;
+  border-radius: 2rem;
+  background-color: inherit;
+  border: none;
+  box-sizing: border-box;
+  transition: background-color 0.3s ease;
+}
+#searchInput:focus{
+  border-color: $Silver;
+  outline: none;
+  box-sizing: border-box;
+}
+#searchInput:hover{
+  background-color: $lightSilver;
+}
+#searchForm{
+  padding: 0.1rem;
+  border-radius: 2rem;
+  border: 2px solid $lightSilver;
+  position: relative;
+  background-color: white;
+  box-sizing: border-box;
+}
+#searchForm:hover{
+  background-color: $darkSilver;
+}
+.dropdown{
+  width: 0.6rem;
+  height: 0.6rem;
+  position: absolute;
+  right: 10%;
+  top: 42%;
+}
+
+.search-container {
+  position: relative;
+  display: inline-block;
+}
+
+.search-btn {
+  padding: 0.5rem 0rem;
+  padding-left: 1rem;
+  padding-right: 1.5rem;
+  border-radius: 2rem;
+  background-color: inherit;
+  color: black;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  position: relative;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.search-btn:hover {
+  background-color: $lightSilver;
+}
+
+.options-container {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  border: 1px solid #ced4da;
+  border-radius: 0.5rem;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+
+.option-btn {
+  padding: 0.5rem 1rem;
+  background-color: #fff;
+  border: none;
+  color: #495057;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.option-btn:hover {
+  background-color: #f8f9fa;
+}
+
+// style SignUp or Login buttons
+.buttons{
+  display: flex;
+  flex-direction: row;
+}
+.btn{
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+.btn:checked{
+  background-color: $green;
+}
+.btn-primary{
+  background-color: $green;
+  padding: 0.6rem 1.4rem;
+  border-radius: 0.7rem;
+}
+.btn-primary:hover{
+  background-color: $lightGreen;
+}
+.simpleBtn{
+  color: black;
+  background-color: white;
+  margin: 0rem 1rem;
+}
+.simpleBtn:hover{
+  background-color: white;
+}
+
+// choose account page styling
+.heading{
+  font-size: 2rem;
+  text-align: center;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+.boxContainer{
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+}
+.radioBox{
+  width: 12rem;
+  height: 14rem;
+  border: 2px solid #D9D9D9;
+  position: relative;
+  border-radius: 1rem;
+  input{
+    position: absolute;
+    left: 90%;
+    top: 5%;
+    height: 1rem;
+    width: 1rem;
+    background-color: $green;
+  }
+  input[type="radio"]:checked{
+    color: $green;
+    border-color: #108A00;
+  }
+  img{
+    margin: 1rem 1rem;
+  }
+  label{
+    margin: 0.2rem 1rem;
+    font-size: 1.4rem;
+    font-weight: 500;
+  }
+  label:hover{
+    cursor: pointer;
+  }
+}
+.radioBox:hover{
+  border-color: $green;
+  cursor: pointer;
+}
+.radioBox.selected{
+  background-color: #F9F9F9;
+  border-color: $green;
+  animation: move 0.2s step-end;
+}
+#selectedBtn{
+  margin: 2rem 0rem;
+}
+.link{
+  color: $green;
+  font-weight: 700;
+}
+.link:hover{
+  color: $lightGreen;
+}
+@keyframes move {
+  from {
+    width: 11.7rem;
+    height: 13.5rem;
+   
+  }
+  to {
+    width: 12rem;
+    height: 14rem;
+  }
+}
+
+
+// style disable btn
+.disable{
+  background-color: #E9E9E9;
+  color: #A5A5A5;
+  cursor: not-allowed;
+}
+.disable:hover{
+  background-color: #E9E9E9;
+  color: #A5A5A5;
+}
+
+// style continue with google button
+#continueWithGoogle{
+  padding-left: 4rem;
+  padding-right: 2rem;
+  background-color: #4285F4;
+  width: 50%;
+}
+#continueWithGoogle:hover{
+  background-color: #2066d8;
+}
+
+// style signUp page
+.signUpDiv{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.signUpContainer{
+  width: 30rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding-bottom: 2rem;
+  .heading{
+    margin-bottom: 0;
+  }
+  div{
+    position: relative;
+  }
+}
+.googleLogo{
+  position: absolute;
+  top: 13%;
+  left: 2%;
+  background-color: white;
+  padding: 0.15rem;
+  border-radius: 0.5rem;
+}
+
+// signUpForm
+#signUpForm{
+  width: 100%;
+  display: flex;
+  gap: 0.5rem;
+  flex-direction: column;
+}
+.form-label{
+  font-weight: 500;
+}
+.form-control{
+  border: 2px solid #E9E9E9;
+}
+.form-control:focus{
+  border: 2px solid #c6bcbc;
+  outline: none;
+  box-shadow: none;
+}
+.centerDiv{
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+}
+.error{
+  color: red;
+  font-size: 0.8rem;
+  margin-left: 0.2rem;
+}
+// style password
+.pwdIcon{
+  position: absolute;
+  top: 55%;
+  left: 93%;
+}
+.pwdIcon:hover{
+  cursor: pointer;
+}
+#pwd{
+  padding-right: 2.5rem;
+}
+
+// style OR component
+.OR{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  div{
+    width: 13.5rem;
+    height: 0.5px;
+    background-color: #D9D9D9;
+  }
+  strong{
+    font-weight: 500;
+  }
+}
+
+// style otp component
+.otpBtn{
+  background: none;
+  border: none;
+  color: rgb(106, 106, 235);
+}
+.rightDiv{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+.timer{
+  margin-top: 0.4rem;
+  margin-right: 0.2rem;
+  font-size: 0.9rem;
+}
+.spaceBtwDiv{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}

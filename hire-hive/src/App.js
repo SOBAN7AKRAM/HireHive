@@ -1,26 +1,27 @@
-
 import './App.css';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useState, useEffect } from 'react'
-import Footer from './components/Footer'
 import LandingPage from './components/LandingPage'
+import ChooseAccount from "./components/authentication/ChooseAccount.js";
+import { AuthProvider } from './components/AuthContext.js';
+import Layout from './components/Layout.js';
+
 
 function App() {
-  
+
+
   return (
-    <div className="App">
-      <BrowserRouter>
-      <div className="app-container">
-        <Footer />
-        <div className="content-wrap">
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            {/* <Route path="/other" element={<OtherPage />} /> */}
-          </Routes>
-        </div>
+    <AuthProvider>
+      <div className="App">
+        <BrowserRouter>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path='/sign_up' element={<ChooseAccount />} Route />
+            </Routes>
+          </Layout>
+        </BrowserRouter>
       </div>
-    </BrowserRouter>
-    </div>
+    </AuthProvider>
   );
 }
 
