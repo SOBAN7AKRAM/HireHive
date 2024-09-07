@@ -1,0 +1,42 @@
+services:
+  # React frontend
+  frontend:
+    build:
+      context: ./hire-hive  # Path to your React frontend directory
+    ports:
+      - "3000:3000"  # Maps port 80 in the container to port 3000 on your host
+    depends_on:
+      - backend
+    volumes:
+      - ./hire-hive:/app  # Mounts your local React code into the container
+    # command: ["npm", "start"]  # Ensures React is running in development mode with hot reloading
+
+  # Django backend
+  backend:
+    build:
+      context: .  # Path to your Django backend directory
+    ports:
+      - "8000:8000"  # Maps port 8000 in the container to port 8000 on your host
+    environment:
+      - DATABASE_URL=mysql://Soban:cyberpunk2077@mysql/HireHive
+    depends_on:
+      - mysql
+    volumes:
+      - .:/app  # Mounts your Django backend code into the container
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+  # MySQL database
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: Cyberpunk2077;
+      MYSQL_DATABASE: HireHive
+      MYSQL_USER: Soban
+      MYSQL_PASSWORD: cyberpunk2077
+    ports:
+      - "3306:3306"  # Maps port 3306 in the container to port 3306 on your host
+    volumes:
+      - mysql_data:/var/lib/mysql  # Persist data between container restarts
+
+volumes:
+  mysql_data:

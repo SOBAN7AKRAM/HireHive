@@ -28,7 +28,7 @@ body {
   }
 .content-wrap {
     flex: 1;
-    padding-top: 2rem;
+    margin-top: 4rem;
   }
 .searchInput{
   border-radius: 2rem;
@@ -177,7 +177,7 @@ body {
   font-size: 2rem;
   text-align: center;
   margin-top: 1rem;
-  margin-bottom: 2rem;
+  // margin-bottom: 2rem;
 }
 .boxContainer{
   display: flex;
@@ -284,8 +284,9 @@ body {
   align-items: center;
   gap: 1.5rem;
   padding-bottom: 2rem;
+  padding-top: 2rem;
   .heading{
-    margin-bottom: 0;
+    margin-bottom: 0rem;
   }
   div{
     position: relative;
@@ -358,6 +359,11 @@ body {
 }
 
 // style otp component
+.otpContainer{
+  margin: 2rem 0rem;
+  width: 30rem;
+}
+
 .otpBtn{
   background: none;
   border: none;
@@ -378,3 +384,4 @@ body {
   flex-direction: row;
   justify-content: space-between;
 }
+

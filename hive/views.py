@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.db import IntegrityError
 import json
 import random
+from django.conf import settings
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.http import JsonResponse
@@ -55,19 +56,20 @@ def get_csrf_token(request):
     return JsonResponse({'csrfToken': csrf_token})
 
 def generate_otp():
-    return str(random.randint(100000, 99999))
-@csrf_exempt
+    return str(random.randrange(100000, 999999))
+# @csrf_exempt
 def send_otp_email(email, otp):
     subject = "OTP Code for Hire-Hive"
     message = f"Your OTP code is {otp} for Hire-Hive email verification. It is valid for 2 minutes."
-    from_email = "hirehive3@gmail.com"
+    from_email = settings.EMAIL_HOST_USER
     recipient_list = [email]
     send_mail(subject, message, from_email, recipient_list)
 
 def send_otp(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST method required"}, status = 400)
-    email = request.POST['email']
+    data = json.loads(request.body)
+    email = data.get('email')
     otp = generate_otp()
     expired_at = timezone.now() + timezone.timedelta(minutes=2)
     email_verification, created = EmailVerification.objects.update_or_create(

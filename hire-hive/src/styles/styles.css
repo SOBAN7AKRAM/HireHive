@@ -28,7 +28,7 @@ body {
 
 .content-wrap {
   flex: 1;
-  padding-top: 2rem;
+  margin-top: 4rem;
 }
 
 .searchInput {
@@ -192,7 +192,6 @@ body {
   font-size: 2rem;
   text-align: center;
   margin-top: 1rem;
-  margin-bottom: 2rem;
 }
 
 .boxContainer {
@@ -304,9 +303,10 @@ body {
   align-items: center;
   gap: 1.5rem;
   padding-bottom: 2rem;
+  padding-top: 2rem;
 }
 .signUpContainer .heading {
-  margin-bottom: 0;
+  margin-bottom: 0rem;
 }
 .signUpContainer div {
   position: relative;
@@ -381,6 +381,11 @@ body {
 }
 .OR strong {
   font-weight: 500;
+}
+
+.otpContainer {
+  margin: 2rem 0rem;
+  width: 30rem;
 }
 
 .otpBtn {
