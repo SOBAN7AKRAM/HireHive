@@ -1,5 +1,4 @@
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 import json
 import random
@@ -10,6 +9,20 @@ from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
 from .models import User, Profile, EmailVerification,  Client, Skills, Freelancer, FreelancerProject, ProjectPicture, ActiveJob, ActiveJobAttachement, Proposal, AssignedJob, DeliverableJob, Feedback, FeedbackToClient, FeedbackToFreelancer
+from django.db import transaction
+
+country_abbreviations = {
+    'United State': 'US',
+    'Pakistan':'PK', 
+    'India': 'IN',
+    'United Kingdom':'GB', 
+    'Germany':'DE', 
+    'Russia': 'RU', 
+    "Saudi Arabia":'SA',
+    "Qatar":'QA', 
+    'China': 'CN',
+}
+
 
 # Create your views here.
 def sign_up(request):
@@ -28,12 +41,30 @@ def sign_up(request):
         country = data.get("country")
     else:
         return JsonResponse({"error": "JSON is empty"}, status = 400)
+    
     try:
-        user = User.objects.create(first_name = firstName, last_name = lastName, email = email)
-        user.set_password(password)
-    except IntegrityError:
-        return JsonResponse({"error": "email already exist"}, status = 400)
+        user = User.objects.get(email = email)
+    except User.DoesNotExist:
+        return JsonResponse({"error": "email verification error"}, status = 400)
+    user.first_name = firstName
+    user.last_name = lastName
+    user.set_password(password)
+    user.save()
+    create_profile(user, country, role)
+    return JsonResponse({"success": "Account Created Successfully"}, status = 400)
+
         
+def create_profile(user, location, role):
+    profile = Profile.objects.get_or_create(user = user, location = location, available_balance = 100)
+    profile.save()
+    if role == "client":
+        client = Client.objects.get_or_create(profile = profile)
+        client.save()
+    else:
+        freelancer = Freelancer.objects.get_or_create(profile = profile)
+        freelancer.save()
+
+
 def is_authenticated(request):
     if request.user.is_authenticated:
         return JsonResponse({'isAuthenticated': True})
@@ -57,7 +88,7 @@ def get_csrf_token(request):
 
 def generate_otp():
     return str(random.randrange(100000, 999999))
-# @csrf_exempt
+
 def send_otp_email(email, otp):
     subject = "OTP Code for Hire-Hive"
     message = f"Your OTP code is {otp} for Hire-Hive email verification. It is valid for 2 minutes."
@@ -79,20 +110,39 @@ def send_otp(request):
     send_otp_email(email, otp)
     return JsonResponse({"message": "otp sent successfully"})
 
+
+
 def verify_otp(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST method required"}, status = 400)
-    email = request.POST['email']
-    otp = request.POST['otp']
+    data = json.loads(request.body)
+    sign_up_data = data.get('signUpData')
+    email = sign_up_data.get('email')
+    otp = data.get('otp')
+
     try:
         email_verification = EmailVerification.objects.get(email = email, otp = otp)
     except EmailVerification.DoesNotExist:
-        return JsonResponse({"Error": "Invalid otp or email"}, status = 400)
+        return JsonResponse({"error": "Invalid otp or email"}, status = 400)
     if email_verification.expired_at < timezone.now():
         return JsonResponse({"error": "otp expired"}, status = 400)
+    
+    role = sign_up_data.get("role")
+    first_name = sign_up_data.get("firstName")
+    last_name = sign_up_data.get("lastName")
+    email = sign_up_data.get("email")
+    password = sign_up_data.get("password")
+    country = sign_up_data.get("country")
+
     try:
-        user = User.objects.create(email = email)
+        user = User.objects.create(firstname = first_name.strip(), lastname = last_name.strip(), email = email)
+        user.set_password(password.strip())
+        user.save()
     except IntegrityError:
         return JsonResponse({"error": "email already exist"}, status = 400)
-    return JsonResponse({"Success": "Email verified"}, status = 203)
+    
+    country_abr = country_abbreviations.get(country)
+    create_profile(user, country_abr, role.strip())
+    login(request, user)
+    return JsonResponse({"Success": "Account Created"}, status = 203)
     

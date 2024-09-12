@@ -2,12 +2,16 @@ import { useState, useEffect, useCallback, useContext } from 'react';
 import React, { memo } from 'react';
 import useCsrfToken from './useCsrfToken';
 import { SignUpContext } from '../context/SignUpContext';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../AuthContext"
+import { json, useNavigate } from 'react-router-dom';
 
 
 const OTP = () => {
     const navigate = useNavigate();
     const csrfToken = useCsrfToken();
+
+    // to set the user to authenticate
+    const setIsAuthenticated = useAuth()
 
     // to store user otp input for verification
     const [otp, setOtp] = useState();
@@ -60,8 +64,52 @@ const OTP = () => {
         fetchOTP();
     }
 
-    function handleVerifyClick() {
+    function postSignUpData() {
+        fetch("http://localhost:8000/sign_up", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+            },
+            credentials: "include",
+            body: JSON.stringify(signUpData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.Success){
+                alert(data.Success)
+                navigate("/")
+            } 
+            else{
+                alert(data.error)
+            }
+        })
+        .catch(err => console.log(err))
+    }
 
+
+    function handleVerifyClick() {
+        fetch("http://localhost:8000/verify_otp", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+            },
+            credentials: "include",
+            body: JSON.stringify({ "otp": otp, "signUpData" : signUpData })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.Success){
+                // postSignUpData();
+                console.log(data.Success);
+
+            } 
+            else{
+                alert(data.error)
+            }
+        })
+        .catch(err => console.log(err))
     }
 
     return (
@@ -74,12 +122,23 @@ const OTP = () => {
                         {`0${minutes}`}: {seconds < 10 ? `0${seconds}` : seconds}
                     </span>
                 </div>
-                <input type="text" className="form-control" id="otpVerification" />
+                <input
+                    type="text"
+                    className="form-control"
+                    id="otpVerification"
+                    onChange={(e) => setOtp(e.target.value)}
+                />
                 <div className="rightDiv">
                     <button className="btn-link otpBtn" onClick={handleResendClick}>Resend OTP?</button>
                 </div>
                 <div className='mt-3 centerDiv'>
-                    <input type="submit" className="btn btn-primary" id="verifyOtpBtn" value="Verify OTP" />
+                    <input 
+                    type="submit" 
+                    className="btn btn-primary" 
+                    id="verifyOtpBtn" 
+                    value="Verify OTP" 
+                    onClick={handleVerifyClick}
+                    />
                 </div>
             </div>
         </div>
