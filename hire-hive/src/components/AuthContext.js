@@ -6,6 +6,7 @@ const AuthContext = createContext();
 // AuthProvider component to wrap around the app
 export const AuthProvider = ({children}) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [user, setUser] = useState(null)
      
     useEffect(() => {
         fetch('http://localhost:8000/is_authenticated')

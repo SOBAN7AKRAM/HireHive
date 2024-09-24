@@ -10,6 +10,38 @@ body {
   font-family: 'Roboto', 'Arial', 'Helvetica', sans-serif;
 }
 
+// style profiles components
+.profileLogoDiv{
+  border: 2px solid $extraDarkSilver;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 5rem;
+  width: 5rem;
+}
+.profileLogoDiv:hover{
+  cursor: pointer;
+}
+
+
+// style userLogo component
+.userLogoDiv{
+  border: 2px solid $extraDarkSilver;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  width: 2.5rem;
+}
+.userLogoDiv:hover{
+  cursor: pointer;
+}
+
+
 .logo {
   width: 8rem;
   height: 2rem;
@@ -625,4 +657,15 @@ body {
 
 .linkWhite:hover {
   text-decoration: underline;
+}
+
+
+// style Contact us form
+.alertContact{
+  width: 30rem;
+  text-align: center;
+}
+#contactUsBtn{
+  padding: 1rem;
+  font-size: 1rem;
 }
