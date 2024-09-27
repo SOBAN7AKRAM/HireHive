@@ -20,11 +20,30 @@ body {
   justify-content: center;
   height: 5rem;
   width: 5rem;
+  object-fit: cover;
 }
-.profileLogoDiv:hover{
+.profilePageContainer{
+  border: 1.5px solid $Silver;
+  border-radius: 1rem;
+  margin: 1rem 3rem;
+}
+.generalDetailContainer{
+  margin: 2rem;
+}
+.introContainer{
+  border-top: 1.5px solid $Silver;
+  padding: 1rem 2rem;
+}
+.projectCard:hover{
+  background-color: $Silver;
   cursor: pointer;
+  .titleHeading{
+    text-decoration: underline;
+  }
 }
-
+.titleHeading{
+  color: $green;
+}
 
 // style userLogo component
 .userLogoDiv{
@@ -591,6 +610,13 @@ body {
   height: 1.3rem;
   width: 1.3rem;
 }
+.iconLg{
+  height: 2rem;
+  width: 2rem;
+}
+.iconLg:hover{
+  cursor: pointer;
+}
 
 .para {
   color: $extraDarkSilver;
@@ -668,4 +694,34 @@ body {
 #contactUsBtn{
   padding: 1rem;
   font-size: 1rem;
+}
+
+// style profile
+.edit{
+  border: 2px solid $green;
+  border-radius: 50%;
+  height: 2rem;
+  width: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  .icon{
+    height: 1rem;
+    width: 1rem;
+  }
+}
+.edit:hover{
+  cursor: pointer;
+}
+
+.editProfilePicDiv{
+  position: relative;
+  .edit{
+    position: absolute;
+    top: 60%;
+    left: 60%;
+    height: 2rem;
+    width: 2rem;
+  }
 }

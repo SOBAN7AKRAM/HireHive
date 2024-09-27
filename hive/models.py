@@ -107,7 +107,7 @@ class FreelancerProject(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
     link = models.URLField(blank=True, null=True)
-    
+    thumbnail = models.ImageField(default="", upload_to='images/')
     def __str__(self):
         return f"{self.title} project of {self.freelancer.profile.user.username}"
     

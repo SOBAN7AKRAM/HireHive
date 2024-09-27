@@ -9,7 +9,16 @@ services:
       - backend
     volumes:
       - ./hire-hive:/app  # Mounts your local React code into the container
-    # command: ["npm", "start"]  # Ensures React is running in development mode with hot reloading
+      # - /app/node_modules  # Ensures container doesn't overwrite node_modules
+    develop:
+      watch:
+        - action: sync
+          path: ./hire-hive
+          target: /app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
 
   # Django backend
   backend:

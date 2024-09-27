@@ -1,5 +1,6 @@
 import moment from 'moment-timezone';
 import { useState, useEffect } from 'react';
+import logo from '../../assets/location.png'
 
 const TimeByCountry = ({country}) => {
     const [currentTime, setCurrentTime] = useState('');
@@ -33,7 +34,10 @@ const TimeByCountry = ({country}) => {
     }, [country])
 
     return (
-        <div>{currentTime}</div>
+        <div className='d-flex'>
+            <img src={logo} />
+            <div>{country} - {currentTime} local time</div>
+        </div>
     )
 }
 export default TimeByCountry;

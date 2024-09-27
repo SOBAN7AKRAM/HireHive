@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import logo from '../../assets/userBlack.png'
 import useCsrfToken from '../authentication/useCsrfToken.js'
 import { useAuth } from '../AuthContext';
+import Edit from './Edit.js';
 
 const ProfilePicture = ({ profileUser, setProfileUser, hasImage, isSelf, setHasImage }) => {
     const fileInputRef = useRef(null);
@@ -10,18 +11,18 @@ const ProfilePicture = ({ profileUser, setProfileUser, hasImage, isSelf, setHasI
 
     function handleClick(e) {
         e.preventDefault();
-        if (isSelf){
+        if (!isSelf) {
             return;
         }
         fileInputRef.current.click();
     }
-    function handleImageChange(event){
+    function handleImageChange(event) {
         const file = event.target.files[0]
-        if (file){
+        if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
                 setProfileUser(prevProfileUser => ({
-                    ...prevProfileUser, 
+                    ...prevProfileUser,
                     picture: reader.result
                 }))
             }
@@ -54,7 +55,7 @@ const ProfilePicture = ({ profileUser, setProfileUser, hasImage, isSelf, setHasI
             <input
                 type='file'
                 ref={fileInputRef}
-                style={{'display': 'none'}}
+                style={{ 'display': 'none' }}
                 accept='image/*'
                 onChange={handleImageChange}
             />
@@ -63,16 +64,15 @@ const ProfilePicture = ({ profileUser, setProfileUser, hasImage, isSelf, setHasI
                     className='profileLogoDiv'
                     style={{ 'border': 'none' }}
                     src={profileUser.picture}
-                    onClick={handleClick}
                 />
             ) : (
                 <div className='profileLogoDiv'>
                     <img
                         src={logo}
-                        onClick={handleClick}
                     />
                 </div>
             )}
+            {isSelf && <Edit onClick={handleClick}/>}
         </>
     )
 }
