@@ -36,7 +36,7 @@ const Portfolio = ({ userId, isSelf }) => {
                     "https://via.placeholder.com/150/0000FF/808080",
                     "https://via.placeholder.com/150/FF0000/FFFFFF"
                 ],
-                link: "https://example.com/project-one",
+                link: "https://www.youtube.com/watch?v=n5q1ObIH5pk&list=RDn5q1ObIH5pk&start_radio=1",
                 thumbnail: "https://via.placeholder.com/150/FF0000/FFFFFF"
             },
             {

@@ -6,6 +6,7 @@ import ProfilePicture from './ProfilePicture.js'
 import Edit from "./Edit.js";
 import Intro from "./Intro.js";
 import Portfolio from "./Portfolio.js";
+import Skills from "./Skills.js";
 
 
 const FreelancerProfile = () => {
@@ -65,6 +66,7 @@ const FreelancerProfile = () => {
             </div>
             <Intro profileUser={profileUser} isSelf={true}/>
             <Portfolio userId={id} isSelf={true}/>
+            <Skills userId={id} isSelf={true}/>
         </div>
     )
 }

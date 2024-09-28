@@ -41,6 +41,36 @@ body {
   color: #108A00;
 }
 
+.bg-secondary {
+  padding: 0.7rem 1rem;
+  border-radius: 1rem;
+}
+
+.close {
+  background-color: white;
+  border: none;
+}
+.close #sp {
+  font-size: 2rem;
+}
+
+.modalPicContainer {
+  height: 20rem;
+}
+
+.modalPics {
+  height: 100%;
+  width: 100%;
+}
+
+.model-open-bg {
+  background-color: #ddd8d8;
+}
+
+.modal-content {
+  border-radius: 1rem;
+}
+
 .userLogoDiv {
   border: 2px solid #676767;
   border-radius: 50%;
@@ -230,6 +260,14 @@ body {
 
 .btn-primary:hover {
   background-color: #1ec109;
+}
+
+.btnGreen {
+  border: none;
+  background-color: white;
+  border-radius: none;
+  outline: none;
+  color: #108A00;
 }
 
 .simpleBtn {

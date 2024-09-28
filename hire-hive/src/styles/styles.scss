@@ -44,6 +44,33 @@ body {
 .titleHeading{
   color: $green;
 }
+.bg-secondary{
+  padding: 0.7rem 1rem;
+  border-radius: 1rem;
+}
+
+// ProjectModal styling
+.close{
+    background-color: white;
+    border: none;
+    #sp{
+      font-size: 2rem;
+    }
+}
+.modalPicContainer{
+  height: 20rem;
+}
+.modalPics{
+  height: 100%;
+  width: 100%;
+}
+
+.model-open-bg{
+  background-color: #ddd8d8; 
+}
+.modal-content{
+  border-radius: 1rem;
+}
 
 // style userLogo component
 .userLogoDiv{
@@ -236,6 +263,13 @@ body {
 
 .btn-primary:hover {
   background-color: $lightGreen;
+}
+.btnGreen{
+  border: none;
+  background-color: white;
+  border-radius: none;
+  outline: none;
+  color: $green;
 }
 
 .simpleBtn {
