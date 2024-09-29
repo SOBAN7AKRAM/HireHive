@@ -9,6 +9,7 @@ const SignUpForm = (props) => {
     const {setSignUpData} = useContext(SignUpContext);
     
     const [passwordError, setPasswordError] = useState(false);
+    const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
     function handleClick(event) {
@@ -53,7 +54,7 @@ const SignUpForm = (props) => {
                 <input type="email" className="form-control" id="email" name="email" required />
             </div>
             <div className="mb-3">
-                <Password setPasswordError={setPasswordError} />
+                <Password setPasswordError={setPasswordError} password={password} setPassword={setPassword} label="Password" />
             </div>
             <div className="mb-3">
                 <SelectCountry />

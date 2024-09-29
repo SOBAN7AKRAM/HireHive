@@ -737,4 +737,10 @@ body {
   width: 2rem;
 }
 
+.Container {
+  border: 2px solid #e3e0e0;
+  border-radius: 1rem;
+  width: 40%;
+}
+
 /*# sourceMappingURL=styles.css.map */

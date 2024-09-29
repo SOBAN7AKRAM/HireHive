@@ -1,21 +1,20 @@
 import { useState } from 'react'
 import hide from '../../assets/hide.png'
 import show from '../../assets/show.png'
-const Password = (props) => {
+const Password = ({setPasswordError, password, setPassword, label}) => {
     const [icon, setIcon] = useState('hide')
-    const [password, setPassword] = useState('')
     const [error, setError] = useState('')
     function handleChange(event){
         const newPassword = event.target.value;
         setPassword(newPassword);
         if (newPassword.length < 8){
             setError('*Password must be atleast 8 characters long')
-            props.setPasswordError(true)
+            setPasswordError(true)
         }
         else
         {
             setError('');
-            props.setPasswordError(false)
+            setPasswordError(false)
         }
     }
 
@@ -33,7 +32,7 @@ const Password = (props) => {
     return (
         <>
             <div>
-            <label for="pwd" class="form-label">Password</label>
+            <label for="pwd" class="form-label">{label}</label>
             <input
                 type="password"
                 class="form-control"

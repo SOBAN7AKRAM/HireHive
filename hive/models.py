@@ -52,7 +52,6 @@ class Profile(models.Model):
         China  = 'CN', 'China'
     
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    bio = models.TextField(blank=True, null=True)
     picture = models.ImageField(default='', upload_to='images/')
     available_balance = models.DecimalField(max_digits=8, decimal_places=2, default = 100)
     location = models.CharField(
@@ -84,6 +83,7 @@ class Skills(models.Model):
     
 class Freelancer(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
+    bio = models.TextField(blank=True, null=True)
     bio_Skill = models.CharField(max_length=100)
     hourly_rate = models.DecimalField(max_digits=8, decimal_places=2)
     skills = models.ManyToManyField(Skills)

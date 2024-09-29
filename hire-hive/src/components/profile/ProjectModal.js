@@ -34,7 +34,7 @@ const ProjectModal = ({ show, handleClose, project }) => {
                         </div>
                         <div className="flex-item w-50">
                             <div className="d-flex flex-column gap-3">
-                                {project.pics.map((pic, index) => (
+                                {project.pictures.map((pic, index) => (
                                     <div className="modalPicContainer">
                                         <img key={index} src={pic} alt={`Project image ${index + 1}`}
                                             className="modalPics" />

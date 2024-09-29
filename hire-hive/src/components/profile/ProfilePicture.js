@@ -63,7 +63,7 @@ const ProfilePicture = ({ profileUser, setProfileUser, hasImage, isSelf, setHasI
                 <img
                     className='profileLogoDiv'
                     style={{ 'border': 'none' }}
-                    src={profileUser.picture}
+                    src={profileUser?.picture}
                 />
             ) : (
                 <div className='profileLogoDiv'>
