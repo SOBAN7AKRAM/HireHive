@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import Edit from "./Edit";
+import EditSkillsModal from "./EditSkillsModal";
 
 const Skills = ({ userId, isSelf }) => {
-    const [skills, setSkills] = useState([])
+    const [skills, setSkills] = useState([]);
+    const [showEditSkillsModal, setShowEditSkillsModal] = useState(false);
     function handleEditClick(e) {
         e.preventDefault();
+        setShowEditSkillsModal(true);
     }
 
     useEffect(() => {
@@ -24,6 +27,15 @@ const Skills = ({ userId, isSelf }) => {
             <div className="d-flex flex-wrap justify-content-between">
                 <h5>Skills</h5>
                 {isSelf && <Edit onClick={handleEditClick} />}
+                {showEditSkillsModal && 
+                <EditSkillsModal
+                show={showEditSkillsModal}
+                handleClose={() => setShowEditSkillsModal(false)}
+                userId={userId}
+                skills={skills}
+                setSkills={setSkills}
+                />
+                }
             </div>
             <div class="container my-4">
                 <div class="row">

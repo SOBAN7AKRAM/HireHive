@@ -11,6 +11,7 @@ import HowToHire from './components/landingPage/HowToHire.js'
 import ContactUs from './components/ContactUs.js';
 import FreelancerProfile from './components/profile/FreelancerProfile.js';
 import ClientProfile from './components/profile/ClientProfile.js';
+import ProfileSetting from './components/profile/ProfileSetting.js';
 
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
                 <Route path='/contact_us' element={<ContactUs/>}/>
                 <Route path="/freelancer/profile/:id" element={<FreelancerProfile/>}/>
                 <Route path='/client/profile/:id' element={<ClientProfile/>}/>
+                <Route path='/freelancer/profile/:id/setting' element={<ProfileSetting/>}/>
               </Routes>
           </Layout>
         </BrowserRouter>
