@@ -126,14 +126,11 @@ class ActiveJob(models.Model):
     posted_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     amount = models.DecimalField(max_digits=8, decimal_places=2)
+    link = models.URLField(blank=True, null=True)
     
     def __str__(self):
         return f"{self.title} posted by {self.client.profile.user.username}"
-    
-
-class ActiveJobAttachement(models.Model):
-    job = models.ForeignKey(ActiveJob, on_delete=models.CASCADE, related_name="attachments")
-    file = models.FileField(upload_to='attachments/')     
+        
    
 class Proposal(models.Model):
     job = models.ForeignKey(ActiveJob, on_delete=models.CASCADE, related_name="proposals")
@@ -154,6 +151,10 @@ class AssignedJob(models.Model):
     
     def __str__(self):
         return f"Assigned Job: {self.job.title} to {self.freelancer.profile.user.username}"
+    
+class AssignedJobAttachments(models.Model):
+    job = models.ForeignKey(AssignedJob, on_delete=models.CASCADE, related_name="attachments")
+    file = models.FileField(upload_to='attachments/') 
     
 class DeliverableJob(models.Model):
     assigned_job = models.ForeignKey(AssignedJob, on_delete=models.CASCADE, related_name="deliverables")

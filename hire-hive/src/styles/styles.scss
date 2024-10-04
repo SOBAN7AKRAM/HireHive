@@ -645,6 +645,11 @@ body {
 .smPara{
   font-size: 0.8rem;
 }
+.mdPara{
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.42px;
+}
 .icon {
   height: 1.3rem;
   width: 1.3rem;
@@ -770,4 +775,122 @@ body {
   border: 2px solid $Silver;
   border-radius: 1rem;
   width: 40%;
+}
+
+
+// pagination styling
+.paginationBtn{
+  background-color: white;
+  border-radius: 50%;
+  border: none;
+  outline: none;
+  color: $extraDarkSilver;
+  font-size: 0.9rem;
+  padding: 1px 8px;
+  box-sizing: border-box;
+  &:hover{
+    outline: 2px solid $extraDarkSilver;
+  }
+}
+.paginationBtnActive{
+  outline: 2px solid black;
+  color: black;
+  &:hover {
+    outline: 2px solid black; 
+    color: black;
+  }
+}
+.npBtn{
+  background-color: white;
+  border: none;
+  outline: none;
+  &:hover{
+    text-decoration: underline;
+  }
+  &:disabled{
+    background-color: inherit;
+    text-decoration: none;
+    cursor:not-allowed;
+  }
+}
+.arrowLeft{
+  transform: rotate(90deg);
+}
+.arrowRight{
+ transform: rotate(270deg);
+}
+
+// show Talent Styling
+.Hover:hover{
+  text-decoration: underline;
+  color: $green;
+  cursor: pointer;
+}
+.showDivContainer{
+  border-bottom: 1px solid $darkSilver;
+  &:hover{
+    background-color: $Silver;
+    cursor: pointer;
+  }
+}
+.truncate{
+  display: -webkit-box;
+  display: box; /* Standard property, future-proof */
+  -webkit-line-clamp: 2; /* Limit to 2 lines */
+  line-clamp: 2; /* Standard property, future-proof */
+  -webkit-box-orient: vertical;
+  box-orient: vertical; /* Standard property, future-proof */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal; /* Allow wrapping */
+}
+.truncate1 {
+  @extend .truncate; /* Inherit all properties from .truncate */
+  
+  -webkit-line-clamp: 1; /* Override to limit to 1 line */
+  line-clamp: 1; /* Standard property, future-proof */
+}
+
+// styles job details component
+.detailDivContainer{
+  border-right: 1px solid $darkSilver;
+}
+.borderBottom{
+  border-bottom: 1px solid $darkSilver;
+}
+.w40{
+  width: 40rem;
+}
+.w25{
+  width: 25rem;
+}
+
+
+// style inbox component
+.inboxContainer{
+  background-color: #F9F9F9;
+  border-radius: 1rem;
+  // height: 450px;
+  // height: 75%;
+  height: 75vh;
+  overflow-y: auto;
+  // width: 100%;
+}
+.inboxUserContainer{
+  border-radius: 1rem;
+  background-color: white;
+  // height: 5rem;
+  overflow: hidden;
+  &:hover{
+    cursor: pointer;
+    background-color: $lightGreen;
+    color: white;
+  }
+}
+.fixed-screen {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 9999;
 }

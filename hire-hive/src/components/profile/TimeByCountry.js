@@ -34,8 +34,8 @@ const TimeByCountry = ({country}) => {
     }, [country])
 
     return (
-        <div className='d-flex'>
-            <img src={logo} />
+        <div className='d-flex align-items-center gap-1'>
+            <img src={logo}/>
             <div>{country} - {currentTime} local time</div>
         </div>
     )

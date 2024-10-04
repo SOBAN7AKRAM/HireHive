@@ -6,7 +6,7 @@ const NavLinks = () => {
                 <Link className='nav-link' to="find_work">Find Work</Link>
             </li>
             <li className="nav-item">
-                <Link className='nav-link' to="find_talent">Find Talent</Link>
+                <Link className='nav-link' to="find_talents">Find Talent</Link>
             </li>
             <li className="nav-item">
                 <Link className='nav-link' to="about_us">About Us</Link>

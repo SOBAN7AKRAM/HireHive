@@ -6,6 +6,7 @@ import SimpleFooter from "./SimpleFooter";
 
 const Layout = ({ children }) => {
     const location = useLocation();
+    const notRenderAnyFooter = location.pathname.includes(`/inbox`);
 
     const shouldNotRenderHeader = location.pathname === '/sign_up/' || location.pathname === '/sign_up' || location.pathname === '/log_in' || location.pathname === '/log_in/' || location.pathname === '/sign_up/otp/' || location.pathname === '/sign_up/otp';
     return (
@@ -13,10 +14,14 @@ const Layout = ({ children }) => {
             {!shouldNotRenderHeader && <Header />}
             {shouldNotRenderHeader && <div className="logoDiv"><Logo /></div>}
             <div className="content-wrap">{children}</div>
-            <div className="footer">
-                {!shouldNotRenderHeader && <Footer/>}
-                <SimpleFooter/>
-            </div>
+            
+            {!notRenderAnyFooter && (
+                <div className="footer">
+                    {!shouldNotRenderHeader && <Footer />}
+                    <SimpleFooter />
+                </div>
+            )}
+
         </div>
     )
 }
