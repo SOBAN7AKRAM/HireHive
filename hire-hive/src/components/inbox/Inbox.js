@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import me from '../../assets/me.png'
 import InboxUsers from "./InboxUsers";
+import Chat from "./Chat";
 
 const Inbox = () => {
     const { id } = useParams();
@@ -36,7 +37,7 @@ const Inbox = () => {
                 </div>
             </div>
             <div className="flex-grow-1">
-
+                    <Chat/>
             </div>
         </div>
     )

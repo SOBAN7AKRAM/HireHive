@@ -11,7 +11,7 @@ body {
 }
 
 // style profiles components
-.profileLogoDiv{
+.profileLogoDiv {
   border: 2px solid $extraDarkSilver;
   border-radius: 50%;
   display: flex;
@@ -22,61 +22,73 @@ body {
   width: 5rem;
   object-fit: cover;
 }
-.profilePageContainer{
+
+.profilePageContainer {
   border: 1.5px solid $Silver;
   border-radius: 1rem;
   margin: 1rem 3rem;
 }
-.generalDetailContainer{
+
+.generalDetailContainer {
   margin: 2rem;
 }
-.introContainer{
+
+.introContainer {
   border-top: 1.5px solid $Silver;
   padding: 1rem 2rem;
 }
-.projectCard:hover{
+
+.projectCard:hover {
   background-color: $Silver;
   cursor: pointer;
-  .titleHeading{
+
+  .titleHeading {
     text-decoration: underline;
   }
 }
-.titleHeading{
+
+.titleHeading {
   color: $green;
 }
-.bg-secondary{
+
+.bg-secondary {
   padding: 0.7rem 1rem;
   border-radius: 1rem;
 }
 
 // ProjectModal styling
-.close{
-    background-color: white;
-    border: none;
-    #sp{
-      font-size: 2rem;
-    }
+.close {
+  background-color: white;
+  border: none;
+
+  #sp {
+    font-size: 2rem;
+  }
 }
-.modalPicContainer{
+
+.modalPicContainer {
   height: 20rem;
 }
-.modalPics{
+
+.modalPics {
   height: 100%;
   width: 100%;
 }
-.projectPics{
+
+.projectPics {
   height: 30rem;
 }
 
-.model-open-bg{
-  background-color: #ddd8d8; 
+.model-open-bg {
+  background-color: #ddd8d8;
 }
-.modal-content{
+
+.modal-content {
   border-radius: 1rem;
 }
 
 // style userLogo component
-.userLogoDiv{
+.userLogoDiv {
   border: 2px solid $extraDarkSilver;
   border-radius: 50%;
   display: flex;
@@ -86,7 +98,8 @@ body {
   height: 2.5rem;
   width: 2.5rem;
 }
-.userLogoDiv:hover{
+
+.userLogoDiv:hover {
   cursor: pointer;
 }
 
@@ -267,7 +280,8 @@ body {
 .btn-primary:hover {
   background-color: $lightGreen;
 }
-.btnGreen{
+
+.btnGreen {
   border: none;
   background-color: white;
   border-radius: none;
@@ -642,23 +656,28 @@ body {
 .smHeading {
   font-size: 1.2rem;
 }
-.smPara{
+
+.smPara {
   font-size: 0.8rem;
 }
-.mdPara{
+
+.mdPara {
   font-size: 14px;
   line-height: 22px;
   letter-spacing: 0.42px;
 }
+
 .icon {
   height: 1.3rem;
   width: 1.3rem;
 }
-.iconLg{
+
+.iconLg {
   height: 2rem;
   width: 2rem;
 }
-.iconLg:hover{
+
+.iconLg:hover {
   cursor: pointer;
 }
 
@@ -731,17 +750,18 @@ body {
 
 
 // style Contact us form
-.alertContact{
+.alertContact {
   width: 30rem;
   text-align: center;
 }
-#contactUsBtn{
+
+#contactUsBtn {
   padding: 1rem;
   font-size: 1rem;
 }
 
 // style profile
-.edit{
+.edit {
   border: 2px solid $green;
   border-radius: 50%;
   height: 2rem;
@@ -750,18 +770,21 @@ body {
   align-items: center;
   justify-content: center;
   background-color: white;
-  .icon{
+
+  .icon {
     height: 1rem;
     width: 1rem;
   }
 }
-.edit:hover{
+
+.edit:hover {
   cursor: pointer;
 }
 
-.editProfilePicDiv{
+.editProfilePicDiv {
   position: relative;
-  .edit{
+
+  .edit {
     position: absolute;
     top: 60%;
     left: 60%;
@@ -771,7 +794,7 @@ body {
 }
 
 // style forgot password
-.Container{
+.Container {
   border: 2px solid $Silver;
   border-radius: 1rem;
   width: 40%;
@@ -779,7 +802,7 @@ body {
 
 
 // pagination styling
-.paginationBtn{
+.paginationBtn {
   background-color: white;
   border-radius: 50%;
   border: none;
@@ -788,86 +811,109 @@ body {
   font-size: 0.9rem;
   padding: 1px 8px;
   box-sizing: border-box;
-  &:hover{
+
+  &:hover {
     outline: 2px solid $extraDarkSilver;
   }
 }
-.paginationBtnActive{
+
+.paginationBtnActive {
   outline: 2px solid black;
   color: black;
+
   &:hover {
-    outline: 2px solid black; 
+    outline: 2px solid black;
     color: black;
   }
 }
-.npBtn{
+
+.npBtn {
   background-color: white;
   border: none;
   outline: none;
-  &:hover{
+
+  &:hover {
     text-decoration: underline;
   }
-  &:disabled{
+
+  &:disabled {
     background-color: inherit;
     text-decoration: none;
-    cursor:not-allowed;
+    cursor: not-allowed;
   }
 }
-.arrowLeft{
+
+.arrowLeft {
   transform: rotate(90deg);
 }
-.arrowRight{
- transform: rotate(270deg);
+
+.arrowRight {
+  transform: rotate(270deg);
 }
 
 // show Talent Styling
-.Hover:hover{
+.Hover:hover {
   text-decoration: underline;
   color: $green;
   cursor: pointer;
 }
-.showDivContainer{
+
+.showDivContainer {
   border-bottom: 1px solid $darkSilver;
-  &:hover{
+
+  &:hover {
     background-color: $Silver;
     cursor: pointer;
   }
 }
-.truncate{
+
+.truncate {
   display: -webkit-box;
-  display: box; /* Standard property, future-proof */
-  -webkit-line-clamp: 2; /* Limit to 2 lines */
-  line-clamp: 2; /* Standard property, future-proof */
+  display: box;
+  /* Standard property, future-proof */
+  -webkit-line-clamp: 2;
+  /* Limit to 2 lines */
+  line-clamp: 2;
+  /* Standard property, future-proof */
   -webkit-box-orient: vertical;
-  box-orient: vertical; /* Standard property, future-proof */
+  box-orient: vertical;
+  /* Standard property, future-proof */
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: normal; /* Allow wrapping */
+  white-space: normal;
+  /* Allow wrapping */
 }
+
 .truncate1 {
-  @extend .truncate; /* Inherit all properties from .truncate */
-  
-  -webkit-line-clamp: 1; /* Override to limit to 1 line */
-  line-clamp: 1; /* Standard property, future-proof */
+  @extend .truncate;
+  /* Inherit all properties from .truncate */
+
+  -webkit-line-clamp: 1;
+  /* Override to limit to 1 line */
+  line-clamp: 1;
+  /* Standard property, future-proof */
 }
 
 // styles job details component
-.detailDivContainer{
+.detailDivContainer {
   border-right: 1px solid $darkSilver;
 }
-.borderBottom{
+
+.borderBottom {
   border-bottom: 1px solid $darkSilver;
 }
-.w40{
+
+.w40 {
   width: 40rem;
 }
-.w25{
+
+.w25 {
   width: 25rem;
 }
 
 
 // style inbox component
-.inboxContainer{
+.inboxContainer {
   background-color: #F9F9F9;
   border-radius: 1rem;
   // height: 450px;
@@ -876,21 +922,89 @@ body {
   overflow-y: auto;
   // width: 100%;
 }
-.inboxUserContainer{
+
+.inboxUserContainer {
   border-radius: 1rem;
   background-color: white;
   // height: 5rem;
   overflow: hidden;
-  &:hover{
+
+  &:hover {
     cursor: pointer;
     background-color: $lightGreen;
     color: white;
   }
 }
+
 .fixed-screen {
   position: fixed;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
   z-index: 9999;
+}
+
+.chatContainer {
+  height: calc(100vh - 6rem);
+  width: 100%;
+}
+
+.messages {
+  flex-grow: 1;
+  padding: 10px;
+  overflow-y: auto;
+  background-color: #f0f0f0;
+  max-height: calc(100vh - 120px);
+}
+
+.message {
+  background-color: white;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: calc(100vw - 30rem);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.chatInputContainer {
+  padding: 10px;
+  border-top: 1px solid #ddd;
+  position: sticky;
+  bottom: 0;
+  background-color: #fff;
+  width: calc(100% - 3.5rem);
+}
+
+.textAreaWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  textarea {
+    width: 100%;
+    padding: 10px 40px;
+    font-size: 16px;
+    border-radius: 25px;
+    border: 1px solid #ddd;
+    resize: none;
+    min-height: 50px;
+    outline: none;
+    box-sizing: border-box;
+  }
+
+  .icon {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+  }
+}
+.attachIcon {
+  left: 10px; 
+}
+
+.sendIcon {
+  right: 10px;
 }
