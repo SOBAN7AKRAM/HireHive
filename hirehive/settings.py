@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [
@@ -107,7 +109,16 @@ DATABASES = {
         'PASSWORD': os.getenv('DATABASE_PASSWORD', 'cyberpunk2077'),
         'HOST': os.getenv('DATABASE_HOST', 'mysql'),
         'PORT': os.getenv('DATABASE_PORT', '3306'),
-    }
+    },
+    'TEST': {
+        'NAME': 'test_HireHive',  # Specify the name of your test database here
+    },
+}
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',  # Optional
+    ],
 }
 
 

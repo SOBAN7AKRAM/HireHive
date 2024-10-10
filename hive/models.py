@@ -24,9 +24,8 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
     
 class User(AbstractUser):
-    firstname = models.CharField(max_length=30, blank=True)
-    lastname = models.CharField(max_length=30, blank=True)
     email = models.EmailField(unique = True)
+    username = None
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
     objects = CustomUserManager()
@@ -36,6 +35,7 @@ class EmailVerification(models.Model):
     otp = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
     expired_at = models.DateTimeField()
+    is_verified = models.BooleanField(default=False)
     
     
 class Profile(models.Model):
@@ -52,7 +52,7 @@ class Profile(models.Model):
         China  = 'CN', 'China'
     
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    picture = models.ImageField(default='', upload_to='images/')
+    picture = models.ImageField(default='', upload_to='profile/images')
     available_balance = models.DecimalField(max_digits=8, decimal_places=2, default = 100)
     location = models.CharField(
         max_length=2, 
@@ -62,7 +62,7 @@ class Profile(models.Model):
 
 class Client(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
-    company_name = models.CharField(max_length=100)
+    company_name = models.CharField(max_length=100, null=True, blank=True)
     @property
     def total_spent(self):
         total_spent = 0
@@ -84,9 +84,9 @@ class Skills(models.Model):
 class Freelancer(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
     bio = models.TextField(blank=True, null=True)
-    bio_Skill = models.CharField(max_length=100)
-    hourly_rate = models.DecimalField(max_digits=8, decimal_places=2)
-    skills = models.ManyToManyField(Skills)
+    bio_skill = models.CharField(max_length=100, blank=True, null=True)
+    hourly_rate = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
+    skills = models.ManyToManyField(Skills, blank=True)
     @property
     def total_earning(self):
         total_earning = 0
@@ -104,16 +104,16 @@ class Freelancer(models.Model):
     
 class FreelancerProject(models.Model):
     freelancer = models.ForeignKey(Freelancer, on_delete=models.CASCADE, related_name="projects")
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=100, unique=True)
     description = models.TextField()
     link = models.URLField(blank=True, null=True)
-    thumbnail = models.ImageField(default="", upload_to='images/')
+    thumbnail = models.ImageField(default="", upload_to='projects/thumbnails')
     def __str__(self):
         return f"{self.title} project of {self.freelancer.profile.user.username}"
     
 class ProjectPicture(models.Model):
     project = models.ForeignKey(FreelancerProject, on_delete=models.CASCADE, related_name="project_pictures")
-    image = models.ImageField(default='', upload_to='images/')
+    image = models.ImageField(default='', upload_to='projects/pictures')
    
  
     
@@ -154,11 +154,11 @@ class AssignedJob(models.Model):
     
 class AssignedJobAttachments(models.Model):
     job = models.ForeignKey(AssignedJob, on_delete=models.CASCADE, related_name="attachments")
-    file = models.FileField(upload_to='attachments/') 
+    file = models.FileField(upload_to='jobs/attachments') 
     
 class DeliverableJob(models.Model):
     assigned_job = models.ForeignKey(AssignedJob, on_delete=models.CASCADE, related_name="deliverables")
-    file = models.FileField(upload_to='deliverables/')
+    file = models.FileField(upload_to='deliverablesJob/files')
     delivered_at = models.DateTimeField(auto_now_add=True)    
     status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('delivered', 'Delivered')], default='pending')
     
@@ -176,3 +176,23 @@ class FeedbackToFreelancer(models.Model):
     feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE, related_name="feedback_to_freelancer")
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name="client_given_feedback")
     freelancer = models.ForeignKey(Freelancer, on_delete=models.CASCADE, related_name="freelancer_feedback")
+
+
+class Chat(models.Model):
+    participants = models.ManyToManyField(User, related_name='chats')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Chat between {', '.join([user.email for user in self.participants.all()])}"
+
+
+class Message(models.Model):
+    chat = models.ForeignKey(Chat, on_delete=models.CASCADE, related_name="messages")
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
+    content = models.TextField()
+    file = models.FileField(upload_to='messages/files/', blank=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Message from {self.sender.email} at {self.timestamp}"

@@ -3,23 +3,24 @@ services:
   frontend:
     build:
       context: ./hire-hive  # Path to your React frontend directory
+      dockerfile: Dockerfile
     ports:
-      - "3000:3000"  # Maps port 80 in the container to port 3000 on your host
-    depends_on:
-      - backend
-    volumes:
-      - ./hire-hive:/app  # Mounts your local React code into the container
-      - /app/node_modules  # Ensures container doesn't overwrite node_modules
-    # develop:
-    #   watch:
-    #     - action: sync
-    #       path: ./hire-hive
-    #       target: /app
-    #       ignore:
-    #         - node_modules/
-    #     - action: rebuild
-    #       path: package.json
-
+      - "3000:3000"  # Maps port 3000 in the container to port 3000 on your host
+    # volumes:
+    #   - ./hire-hive:/app  # Mounts your local React code into the container
+    #   - /app/node_modules  # Prevents overwriting node_modules inside the container
+    environment:
+      - CHOKIDAR_USEPOLLING=true  # Ensure file watching works inside Docker
+    develop:
+      watch:
+        - action: sync
+          path: ./hire-hive/src
+          target: /app/src
+        - action: rebuild
+          path: ./hire-hive/package.json
+    stdin_open: true  # Keep the container open
+    tty: true  # Allocate a pseudo-TTY for the container
+    
   # Django backend
   backend:
     build:
@@ -42,6 +43,7 @@ services:
       MYSQL_DATABASE: HireHive
       MYSQL_USER: Soban
       MYSQL_PASSWORD: cyberpunk2077
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
     ports:
       - "3306:3306"  # Maps port 3306 in the container to port 3306 on your host
     volumes:

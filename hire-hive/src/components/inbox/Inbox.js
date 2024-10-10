@@ -9,20 +9,20 @@ const Inbox = () => {
     const [inboxUsers, setInboxUsers] = useState([]);
 
     useEffect(() => {
-        const user = 
-            {
-                'id': 1,
-                'picture': me,
-                'name': 'M Soban',
-                'title': 'Full stack developer'
-            }
+        const user =
+        {
+            'id': 1,
+            'picture': me,
+            'name': 'M Soban',
+            'title': 'Full stack developer'
+        }
         const user1 =
-            {
-                'id': 2,
-                'picture': me,
-                'name': 'Hello to the world of the programming',
-                'title': 'Full stack developer || mobile application developer I am a very good developer yourcajkj can check after giveing me ea  dkjl'
-            }
+        {
+            'id': 2,
+            'picture': me,
+            'name': 'Hello to the world of the programming',
+            'title': 'Full stack developer || mobile application developer I am a very good developer yourcajkj can check after giveing me ea  dkjl'
+        }
         setInboxUsers([user, user1, user, user1, user, user1, user1]);
     }, [id])
 
@@ -37,7 +37,7 @@ const Inbox = () => {
                 </div>
             </div>
             <div className="flex-grow-1">
-                    <Chat/>
+                <Chat />
             </div>
         </div>
     )
