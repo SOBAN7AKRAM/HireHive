@@ -12,6 +12,13 @@ from django.db import transaction
 from django.middleware.csrf import get_token
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
+from allauth.socialaccount.models import SocialAccount
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from google.oauth2 import id_token
+import google.auth.transport.requests
+
+GOOGLE_CLIENT_ID = '38015767059-coktn4rrad60pj0n9b38ojrb4cpe3sn7.apps.googleusercontent.com'
 
 country_abbreviations = {
     'United State': 'US',
@@ -33,9 +40,83 @@ def get_csrf_token(request):
     return Response({'csrfToken': csrf_token})
 
 @api_view(['POST'])
+def google_sign_up_or_sign_in(request):
+    data = request.data
+    google_token = data.get('token')  # The ID token sent from the front-end
+
+    try:
+        idinfo = id_token.verify_oauth2_token(google_token, google.auth.transport.requests.Request(), settings.GOOGLE_CLIENT_ID)
+        email = idinfo['email']
+        first_name = idinfo.get('given_name', '')
+        last_name = idinfo.get('family_name', '')
+        role = data.get('role')
+
+        try:
+            user = User.objects.get(email=email)
+            new_user = False 
+        except User.DoesNotExist:
+            new_user = True 
+
+            with transaction.atomic():
+                user = User.objects.create_user(
+                    email=email,
+                    first_name=first_name,
+                    last_name=last_name,
+                )
+                user.set_unusable_password()  # No password, since it's Google sign-up
+                user.save()
+
+                # Create user profile as part of sign-up
+                profile_data = {
+                    "user": user.id,
+                    "location": country_abbreviations.get("PK"), 
+                    "available_balance": 100 
+                }
+                profile_serializer = ProfileSerializer(data=profile_data)
+                if profile_serializer.is_valid():
+                    profile = profile_serializer.save()
+                else:
+                    return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+                # Create Freelancer or Client model based on role
+                if role == "freelancer":
+                    Freelancer.objects.create(profile=profile)
+                elif role == "client":
+                    Client.objects.create(profile=profile)
+
+        if not new_user:
+            # Check if Profile exists for the existing user
+            try:
+                profile = Profile.objects.get(user=user)
+                if Freelancer.objects.filter(profile = profile).exists():
+                    role = 'freelancer'
+                elif Client.objects.filter(profile = profile).exists():
+                    role = 'client'
+            except Profile.DoesNotExist:
+                return Response({"error": "User profile not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Retrieve or create an authentication token for the user
+        token, _ = Token.objects.get_or_create(user=user)
+
+        return Response({
+            "success": "Account created successfully" if new_user else "Signed in successfully",
+            "token": token.key,
+            "user_id": user.id,
+            "email": user.email,
+            "location" : profile.location,
+            "role" : role,
+            "first_name" : user.first_name,
+            "last_name" : user.last_name,
+        }, status=status.HTTP_201_CREATED if new_user else status.HTTP_200_OK)
+    
+    except ValueError:
+        return Response({"error": "Invalid Google token"}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
 def sign_up(request):
     data = request.data
-    
     try:
         email_verification = EmailVerification.objects.get(email=data.get('email'))
         if not email_verification.is_verified:
@@ -120,7 +201,7 @@ def sign_in(request):
             role = 'client'
         token, _ = Token.objects.get_or_create(user=user)
         return Response({
-                    "success": "Account created successfully",
+                    "success": "Signed in successfully",
                     "token": token.key,
                     "user_id": user.id,
                     "email": user.email,
@@ -185,4 +266,50 @@ def verify_otp(request):
     except serializers.ValidationError as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
    
+@api_view(["PUT"])
+def update_profile(request):
+    if request.user.is_authenticated:
+        data = request.data
+        user_id = data.get("user_id")
+        if not user_id:
+            print("id")
+            return Response({'error': "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = User.objects.get(pk = user_id)
+            profile = Profile.objects.get(user = user)
+        except (User.DoesNotExist, Profile.DoesNotExist):
+            return Response({'error': "profile not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        if data.get("location"):
+            data["location"] = country_abbreviations.get(data["location"].title())
+        profile_ser = ProfileSerializer(profile, data = data, partial = True)
+        if profile_ser.is_valid():
+            profile_ser.save()
+            return Response(profile_ser.data, status=status.HTTP_200_OK)
+        print(profile_ser.errors)
+        return Response(profile_ser.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"error" : "Access denied"}, status=status.HTTP_401_UNAUTHORIZED)
+            
+@api_view(["PUT"])
+def update_freelancer(request, freelancer_id):
+    if not request.user.is_authenticated:
+        return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
+    try:
+        freelancer = Freelancer.objects.get(id = freelancer_id)
+    except Freelancer.DoesNotExist:
+        return Response({"error" : "Freelancer not found!"}, status=status.HTTP_404_NOT_FOUND)
     
+    # validate the user if it his profile or not
+    if freelancer.profile.user != request.user:
+        return Response({"error" : "You are not allowed to update this freelancer"}, status=status.HTTP_403_FORBIDDEN)
+    
+    freelancer_ser = FreelancerSerializer(freelancer, data = request.data, partial = True)
+    if freelancer_ser.is_valid():
+        freelancer_ser.save()
+        # return only the update fields
+        updated_fields = request.data.keys()
+        updated_data = {field : freelancer_ser.data[field] for field in updated_fields if field in freelancer_ser.data}
+        if 'skills' in updated_fields:
+            updated_data['skills'] = [skill.name for skill in freelancer.skills.all()]
+        return Response(updated_data, status=status.HTTP_200_OK)
+    return Response(freelancer_ser.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -1,6 +1,18 @@
 from rest_framework import serializers
-from .models import User, Profile, EmailVerification, Client, Freelancer
+from .models import User, Profile, EmailVerification, Client, Freelancer, Skills
 from django.utils import timezone
+
+country_abbreviations = {
+    'United State': 'US',
+    'Pakistan':'PK', 
+    'India': 'IN',
+    'United Kingdom':'GB', 
+    'Germany':'DE', 
+    'Russia': 'RU', 
+    "Saudi Arabia":'SA',
+    "Qatar":'QA', 
+    'China': 'CN',
+}
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -62,15 +74,48 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ["user", "picture", "available_balance", "location"]
         
+    def update(self, instance, validated_data):
+        instance.picture = validated_data.get('picture', instance.picture)
+        instance.location = validated_data.get("location", instance.location)
+        instance.available_balance = validated_data.get('available_balance', instance.available_balance)
+        
+        instance.save()
+        return instance
+        
 class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client
         fields = ["profile", "company_name"]
+   
+class SkillsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Skills
+        fields = ["name"]   
         
 class FreelancerSerializer(serializers.ModelSerializer):
+    
+    skills = serializers.ListField(child=serializers.CharField(), write_only=True)
+    
     class Meta:
         model = Freelancer
         fields = ["profile", "bio", "bio_skill", "hourly_rate", "skills"]
         
+    def update(self, instance, validated_data):
+        instance.bio = validated_data.get("bio", instance.bio)
+        instance.bio_skill = validated_data.get("bio_skill", instance.bio)
+        instance.hourly_rate = validated_data.get("hourly_rate", instance.hourly_rate)
+
+        skills_data = validated_data.get("skills")
+        if skills_data is not None:
+            skills_objects = []
+            for name in skills_data:
+                skill, created = Skills.objects.get_or_create(name = name.lower())
+                skills_objects.append(skill)
+            instance.skills.set(skills_objects)
+        instance.save()
+        
+        return instance
+        
+
                 
         
