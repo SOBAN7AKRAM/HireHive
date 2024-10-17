@@ -1,9 +1,10 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import UserSerializer, EmailVerificationSerializer, ProfileSerializer, ClientSerializer, FreelancerSerializer
+# from .serializers import UserSerializer, EmailVerificationSerializer, ProfileSerializer, ClientSerializer, FreelancerSerializer, FreelancerProjectSerializer, FreelancerProfilePageSerializer, 
+from .serializers import *
 from rest_framework import serializers
-from .models import Profile, EmailVerification, User, Freelancer, Client
+from .models import Profile, EmailVerification, User, Freelancer, Client, FreelancerProject
 import numpy as np
 from django.core.mail import send_mail
 from django.conf import settings
@@ -152,7 +153,7 @@ def sign_up(request):
                         return Response(freelancer_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                 elif role == "client":
                     client_data = {
-                        "profile" : profile.id
+                        "profile" : profile.id, 
                     }
                     client_serializer = ClientSerializer(data = client_data)
                     if client_serializer.is_valid():
@@ -313,3 +314,78 @@ def update_freelancer(request, freelancer_id):
             updated_data['skills'] = [skill.name for skill in freelancer.skills.all()]
         return Response(updated_data, status=status.HTTP_200_OK)
     return Response(freelancer_ser.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["PUT"])
+def update_client(request, client_id):
+    if not request.user.is_authenticated:
+        return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
+    try:
+        client = Client.objects.get(id = client_id)
+    except Client.DoesNotExist:
+        return Response({"error" : "Freelancer not found!"}, status=status.HTTP_404_NOT_FOUND)
+    
+    # validate the user if it his profile or not
+    if client.profile.user != request.user:
+        return Response({"error" : "You are not allowed to update this client"}, status=status.HTTP_403_FORBIDDEN)
+    
+    client_ser = ClientSerializer(client, data = request.data, partial = True)
+    if client_ser.is_valid():
+        client_ser.save()
+        return Response(client_ser.data["company_name"], status=status.HTTP_200_OK)
+    return Response(client_ser.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["GET"])
+def get_freelancer_profile_page(request, freelancer_id):
+    try:
+        freelancer = Freelancer.objects.get(id = freelancer_id)
+    except Freelancer.DoesNotExist:
+        return Response({"error" : "Freelancer not found!"}, status=status.HTTP_404_NOT_FOUND)
+    serializer = FreelancerProfilePageSerializer(freelancer)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(["GET"])
+def get_client_profile_page(request, client_id):
+    try:
+        client = Client.objects.get(id = client_id)
+    except Client.DoesNotExist:
+        return Response({"error" : "Client not found!"}, status=status.HTTP_404_NOT_FOUND)
+    serializer = ClientProfilePageSerializer(client)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+    
+@api_view(["POST"])
+def create_portolio_project(request):
+    if not request.user.is_authenticated:
+        return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    try:
+        freelancer = Freelancer.objects.get(id = request.data.get('freelancer'))
+    except Freelancer.DoesNotExist:
+        return Response({"error" : "Freelancer not found!"}, status=status.HTTP_404_NOT_FOUND)
+    
+    if freelancer.profile.user != request.user:
+        return Response({"error" : "You are not allowed to add this freelancer project"}, status=status.HTTP_403_FORBIDDEN)
+    
+    project_ser = FreelancerProjectSerializer(data = request.data)
+    if project_ser.is_valid():
+        project_ser.save()
+        return Response(project_ser.data, status=status.HTTP_201_CREATED)
+    print(project_ser.errors)
+    return Response(project_ser.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["PUT", "PATCH"])
+def update_portfolio_project(request, project_id):
+    if not request.user.is_authenticated:
+        return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
+    try:
+        project = FreelancerProject.objects.get(id = project_id)
+    except Freelancer.DoesNotExist:
+        return Response({"error" : "project not found!"}, status=status.HTTP_404_NOT_FOUND)
+    if project.freelancer.profile.user != request.user:
+        return Response({"error" : "You are not allowed to edit this freelancer project"}, status=status.HTTP_403_FORBIDDEN)
+    
+    project_ser = FreelancerProjectSerializer(project, data = request.data, partial = True)
+    if project_ser.is_valid():
+        project_ser.save()
+        return Response(project_ser.data, status=status.HTTP_200_OK)
+    return Response(project_ser.errors, status=status.HTTP_400_BAD_REQUEST)
+    

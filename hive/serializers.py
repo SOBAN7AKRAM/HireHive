@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Profile, EmailVerification, Client, Freelancer, Skills
+from .models import User, Profile, EmailVerification, Client, Freelancer, Skills, FreelancerProject, ProjectPicture
 from django.utils import timezone
 
 country_abbreviations = {
@@ -67,8 +67,7 @@ class EmailVerificationSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Invalid or Expired OTP")
         except EmailVerification.DoesNotExist:
             raise serializers.ValidationError("Email not found")
-        
-        
+             
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
@@ -83,9 +82,16 @@ class ProfileSerializer(serializers.ModelSerializer):
         return instance
         
 class ClientSerializer(serializers.ModelSerializer):
+    total_spent = serializers.ReadOnlyField()
+    total_jobs_posted = serializers.ReadOnlyField()
     class Meta:
         model = Client
-        fields = ["profile", "company_name"]
+        fields = ["profile", "company_name", "total_spent", "total_jobs_posted"]
+    
+    def update(self, instance, validated_data):
+        instance.company_name = validated_data.get("company_name", instance.profile)
+        instance.save()
+        return instance
    
 class SkillsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -93,12 +99,14 @@ class SkillsSerializer(serializers.ModelSerializer):
         fields = ["name"]   
         
 class FreelancerSerializer(serializers.ModelSerializer):
+    total_earning = serializers.ReadOnlyField()
+    total_jobs_completed = serializers.ReadOnlyField()
     
-    skills = serializers.ListField(child=serializers.CharField(), write_only=True)
+    skills = serializers.ListField(child=serializers.CharField(), write_only=True, required = False, default = list)
     
     class Meta:
         model = Freelancer
-        fields = ["profile", "bio", "bio_skill", "hourly_rate", "skills"]
+        fields = ["profile", "bio", "bio_skill", "hourly_rate", "skills", "total_earning", "total_jobs_completed"]
         
     def update(self, instance, validated_data):
         instance.bio = validated_data.get("bio", instance.bio)
@@ -115,7 +123,110 @@ class FreelancerSerializer(serializers.ModelSerializer):
         instance.save()
         
         return instance
-        
 
-                
+    
+
+class ProjectPicturesSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectPicture
+        fields = ["image"]
         
+class FreelancerProjectSerializer(serializers.ModelSerializer):
+    project_pictures = ProjectPicturesSerializers(many=True, read_only=True)
+    pictures = serializers.ListField(
+        child = serializers.ImageField(),
+        write_only = True,
+        required = False
+    )
+    id = serializers.ReadOnlyField()
+    class Meta:
+        model = FreelancerProject
+        fields = ["id", "freelancer", "title", "description", "thumbnail", "link", "project_pictures", "pictures"]
+        
+    def validated_project_pictures(self, value):
+        if len(value) > 3:
+            raise serializers.ValidationError("Maximum 3 pictures allowed")
+        return value
+        
+    def create(self, validated_data):
+        pictures_data = validated_data.pop("pictures", [])
+        project = FreelancerProject.objects.create(**validated_data)
+        for picture_data in pictures_data:
+            ProjectPicture.objects.create(project = project, image = picture_data)
+        return project
+
+    
+    def to_representation(self, instance):
+        """Customize the output of project_pictures to return only a list of image URLs."""
+        representation = super().to_representation(instance)
+
+        # Customize project_pictures to return a list of URLs
+        representation['project_pictures'] = [picture.image.url for picture in instance.project_pictures.all()]
+
+        return representation
+    
+    def update(self, instance, validated_data):
+        pictures_data = validated_data.pop("pictures", [])
+        instance.title = validated_data.get("title", instance.title)
+        instance.description = validated_data.get("description", instance.description)
+        instance.thumbnail = validated_data.get("thumbnail", instance.thumbnail)
+        instance.link = validated_data.get("link", instance.link)
+        if pictures_data:
+            instance.project_pictures.all().delete()
+        
+            for picture_data in pictures_data:
+                ProjectPicture.objects.create(project = instance, image = picture_data)
+        
+        instance.save()
+        return instance
+                
+class FreelancerProfilePageSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+    profile = serializers.SerializerMethodField()
+    freelancer = serializers.SerializerMethodField()
+    projects = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Freelancer
+        fields = ['user', 'profile', 'freelancer', 'projects']
+        
+    def get_user(self, obj):
+        user_serializer = UserSerializer(obj.profile.user)
+        return {
+            "first_name" : user_serializer.data["first_name"],
+            "last_name" : user_serializer.data["last_name"],
+        }
+        
+    def get_profile(self, obj):
+        profile_serializer = ProfileSerializer(obj.profile)
+        return profile_serializer.data
+    def get_freelancer(self, obj):
+        Freelancer_serializer = FreelancerSerializer(obj)
+        return Freelancer_serializer.data
+    def get_projects(self, obj):
+        projects = obj.projects.all()
+        projects_serializer = FreelancerProjectSerializer(projects, many = True)
+        return projects_serializer.data
+    
+class ClientProfilePageSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+    profile = serializers.SerializerMethodField()
+    client = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Freelancer
+        fields = ['user', 'profile', 'client']
+        
+    def get_user(self, obj):
+        user_serializer = UserSerializer(obj.profile.user)
+        return {
+            "first_name" : user_serializer.data["first_name"],
+            "last_name" : user_serializer.data["last_name"],
+        }
+        
+    def get_profile(self, obj):
+        profile_serializer = ProfileSerializer(obj.profile)
+        return profile_serializer.data
+    def get_client(self, obj):
+        client_serializer = ClientSerializer(obj)
+        return client_serializer.data

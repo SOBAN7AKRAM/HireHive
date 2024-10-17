@@ -104,12 +104,17 @@ class Freelancer(models.Model):
     
 class FreelancerProject(models.Model):
     freelancer = models.ForeignKey(Freelancer, on_delete=models.CASCADE, related_name="projects")
-    title = models.CharField(max_length=100, unique=True)
+    title = models.CharField(max_length=100)
     description = models.TextField()
     link = models.URLField(blank=True, null=True)
     thumbnail = models.ImageField(default="", upload_to='projects/thumbnails')
     def __str__(self):
         return f"{self.title} project of {self.freelancer.profile.user.username}"
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['freelancer', 'title'], name='unique_project_title_per_freelancer')
+        ]
     
 class ProjectPicture(models.Model):
     project = models.ForeignKey(FreelancerProject, on_delete=models.CASCADE, related_name="project_pictures")
