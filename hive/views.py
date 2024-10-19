@@ -423,9 +423,7 @@ def get_active_jobs(request):
         skills_filter = Q()
         for skill in search_skills_list:
             skills_filter |= Q(skills_required__icontains = skill)
-        print("skills_filter", skills_filter)
         queryset = queryset.filter(skills_filter)
-        print("querySet", queryset)
         
     elif request.user.is_authenticated:
         try:
@@ -505,5 +503,30 @@ def submit_proposal(request):
         return Response({"success" : "Proposal submit"}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+@api_view(["POST"])
+def assigned_job(request):
+    data = request.data
+    client_id = data.get("client")
+    freelancer_id = data.get("freelancer")
+    job_id = data.get("job")   
+    if not request.user.is_authenticated:
+        return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
+    if client_id is None or freelancer_id is None or job_id is None:
+        return Response({"error": "client, freelancer, and job are required fields."}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        client = Client.objects.get(id = client_id)
+    except Client.DoesNotExist:
+        return Response({"error": "client does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+    if client.profile.user != request.user:
+        return Response({"": "you are not allowed to assigned_jobs"}, status=status.HTTP_403_FORBIDDEN)
+    serializer = AssignedJobSerializer(data = data)
+    if serializer.is_valid():
+        active_job = ActiveJob.objects.get(id = job_id)
+        active_job.is_active = False
+        active_job.save()
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     
-    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+         

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Profile, EmailVerification, Client, Freelancer, Skills, FreelancerProject, ProjectPicture, ActiveJob, Proposal
+from .models import User, Profile, EmailVerification, Client, Freelancer, Skills, FreelancerProject, ProjectPicture, ActiveJob, Proposal, AssignedJob
 from django.utils import timezone
 from django.db.models import Sum
 
@@ -270,3 +270,17 @@ class ProposalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Proposal
         fields = "__all__"
+        
+class AssignedJobSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssignedJob
+        fields = "__all__"
+        
+    def validate(self, data):
+        start_date = data.get('start_date')
+        end_date = data.get('end_date')
+        
+        if end_date and start_date and end_date <= start_date:
+            raise serializers.ValidationError("End date must be after start date.")
+        
+        return data

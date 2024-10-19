@@ -145,6 +145,35 @@ class ProposalTests(APITestCase):
         }
         response = self.client.post(self.url, data = data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    
+ 
+class AssignedJobTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(email="test@gmail.com", password="helloworld;")
+        self.user1 = User.objects.create_user(email="test1@gmail.com", password="helloworld;")
+        self.profile = Profile.objects.create(user = self.user)
+        self.profile1 = Profile.objects.create(user = self.user1)
+        self.clien = Client.objects.create(profile = self.profile1)
+        self.freelancer = Freelancer.objects.create(profile = self.profile)
+        self.token = Token.objects.create(user = self.user1)
+        self.activejob = ActiveJob.objects.create(
+            client=self.clien,
+            title=f"hello",
+            description="h",
+            duration=2,
+            amount=5
+        )
+        self.client = APIClient()
+        self.client.credentials(HTTP_AUTHORIZATION = "Token " + self.token.key)
+        self.url = reverse("assigned_job")
+        
+    def test_success(self):
+        data = {
+            "client" : self.clien.id, 
+            "freelancer" : self.freelancer.id,
+            "job" : self.activejob.id, 
+        }
+        response = self.client.post(self.url, data = data, format = "json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(ActiveJob.objects.get(id = self.activejob.id).is_active, False)
     
     
