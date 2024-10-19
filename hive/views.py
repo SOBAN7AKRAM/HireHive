@@ -17,7 +17,10 @@ from allauth.socialaccount.models import SocialAccount
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from google.oauth2 import id_token
+from rest_framework.pagination import PageNumberPagination
 import google.auth.transport.requests
+from django.db.models import Q, Sum
+import re
 
 GOOGLE_CLIENT_ID = '38015767059-coktn4rrad60pj0n9b38ojrb4cpe3sn7.apps.googleusercontent.com'
 
@@ -388,4 +391,119 @@ def update_portfolio_project(request, project_id):
         project_ser.save()
         return Response(project_ser.data, status=status.HTTP_200_OK)
     return Response(project_ser.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(["POST"])
+def job_posting(request):
+    data = request.data
+    client_id = data.get("client")
+    if not request.user.is_authenticated:
+        return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
+    try:
+        client = Client.objects.get(id = client_id)
+    except Freelancer.DoesNotExist:
+        return Response({"error" : "client not found!"}, status=status.HTTP_404_NOT_FOUND)
+    if client.profile.user != request.user:
+        return Response({"error" : "You are not allowed to post job of this client"}, status=status.HTTP_403_FORBIDDEN)
+    serializer = ActiveJobSerializer(data = data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ActiveJobPagination(PageNumberPagination):
+    page_size = 10
+    
+@api_view(["GET"])
+def get_active_jobs(request):
+    queryset = ActiveJob.objects.filter(is_active = True).order_by("-posted_at")
+    search_skills = request.query_params.get('skills', None)
+    if search_skills:
+        sk = re.split(r'\W+', search_skills)
+        search_skills_list = [skill.strip().lower() for skill in sk if skill]
+        skills_filter = Q()
+        for skill in search_skills_list:
+            skills_filter |= Q(skills_required__icontains = skill)
+        print("skills_filter", skills_filter)
+        queryset = queryset.filter(skills_filter)
+        print("querySet", queryset)
+        
+    elif request.user.is_authenticated:
+        try:
+            profile = Profile.objects.get(user=request.user)
+        except Profile.DoesNotExist:
+            return Response({"error": "User profile not found."}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            client = Client.objects.get(profile = profile)
+            queryset = queryset.filter(client = client)
+        except Client.DoesNotExist:
+            pass
+        try:
+            freelancer = Freelancer.objects.get(profile = profile)
+            if freelancer.skills:
+                freelancer_skills = freelancer.skills.values_list('name', flat=True)
+                if freelancer_skills:
+                    skills_filter = Q()
+                    for skill in freelancer_skills:
+                        skills_filter |= Q(skills_required__icontains = skill.lower())
+                    queryset = queryset.filter(skills_filter)
+        except Freelancer.DoesNotExist:
+            pass
+    paginator = ActiveJobPagination()
+    paginator_queryset = paginator.paginate_queryset(queryset, request)
+    serializer = ActiveJobSerializer(paginator_queryset, many = True)
+    return paginator.get_paginated_response(serializer.data)
+
+@api_view(["GET"])
+def get_freelancers(request):
+    freelancers = Freelancer.objects.all()
+    
+    # Annotate total earning by accessing deliverables through assigned jobs
+    queryset = Freelancer.objects.annotate(
+        total_earning=Sum('assigned_jobs__deliverables__assigned_job__job__amount', 
+                          filter=Q(assigned_jobs__deliverables__status='delivered'))
+    )
+    
+    queryset = queryset.order_by('-total_earning')
+    search_query = request.query_params.get('search', '')
+    if search_query:
+        search_terms = re.split(r'\W+', search_query)
+        search_filter = Q()
+        
+        for term in search_terms:
+            search_filter |= Q(profile__user__first_name__icontains=term) | Q(profile__user__last_name__icontains=term)
+            search_filter |= Q(skills__name__icontains=term)
+        queryset = queryset.filter(search_filter).distinct()
+    paginator = ActiveJobPagination()
+    paginator_queryset = paginator.paginate_queryset(queryset, request)
+    serializer = FreelancerProfilePageSerializer(paginator_queryset, many=True)
+    
+    return paginator.get_paginated_response(serializer.data)
+
+
+@api_view(["POST"])
+def submit_proposal(request):
+    data = request.data
+    job_id = data.get("job")
+    freelancer_id = data.get("freelancer")
+    if not request.user.is_authenticated:
+        return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
+    try:
+        active_job = ActiveJob.objects.get(id = job_id)
+    except ActiveJob.DoesNotExist:
+        return Response({"error" : "job not found!"}, status=status.HTTP_404_NOT_FOUND)
+    try:
+        freelancer = Freelancer.objects.get(id = freelancer_id)
+    except Freelancer.DoesNotExist:
+        return Response({"error" : "only authenticated freelancer can apply"}, status=status.HTTP_404_NOT_FOUND)
+   
+    if active_job.is_active != True:
+        return Response({"close" : "job is not active"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    serializer = ProposalSerializer(data = data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"success" : "Proposal submit"}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
     

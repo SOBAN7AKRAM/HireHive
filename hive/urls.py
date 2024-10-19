@@ -18,5 +18,8 @@ urlpatterns = [
     path("update_portfolio_project/<int:project_id>", views.update_portfolio_project, name="update_portfolio_project"),
     path("get_freelancer_profile_page/<int:freelancer_id>", views.get_freelancer_profile_page, name="get_freelancer_profile_page"),
     path("get_client_profile_page/<int:client_id>", views.get_client_profile_page, name="get_client_profile_page"),
-    
+    path("job_posting", views.job_posting, name="job_posting"),
+    path("get_active_jobs/", views.get_active_jobs, name="get_active_jobs"),
+    path("submit_proposal", views.submit_proposal, name="submit_proposal"),
+    path("get_freelancers/", views.get_freelancers, name="get_freelancers")
 ]

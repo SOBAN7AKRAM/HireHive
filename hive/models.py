@@ -87,19 +87,19 @@ class Freelancer(models.Model):
     bio_skill = models.CharField(max_length=100, blank=True, null=True)
     hourly_rate = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     skills = models.ManyToManyField(Skills, blank=True)
-    @property
-    def total_earning(self):
-        total_earning = 0
-        for deliverable_job in self.deliverables.filter(status='delivered'):
-            total_earning += deliverable_job.assigned_job.job.amount
-        return total_earning
+    # @property
+    # def total_earning(self):
+    #     total_earning = 0
+    #     for deliverable_job in self.deliverables.filter(status='delivered'):
+    #         total_earning += deliverable_job.assigned_job.job.amount
+    #     return total_earning
     @property
     def total_jobs_completed(self):
         return self.assigned_jobs.filter(status='completed').count()
     
     
     def __str__(self):
-        return f"{self.bio_Skill} hourly_rate {self.hourly_rate}"
+        return f"{self.bio_skill} hourly_rate {self.hourly_rate}"
    
     
 class FreelancerProject(models.Model):
@@ -126,8 +126,8 @@ class ActiveJob(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name="active_jobs")
     description = models.TextField()
     title = models.CharField(max_length=100)
-    skills_required = models.ManyToManyField(Skills)
-    duration = models.DurationField()
+    skills_required = models.JSONField(blank=True, null=True)
+    duration = models.FloatField()
     posted_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     amount = models.DecimalField(max_digits=8, decimal_places=2)

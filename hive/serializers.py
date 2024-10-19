@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from .models import User, Profile, EmailVerification, Client, Freelancer, Skills, FreelancerProject, ProjectPicture
+from .models import User, Profile, EmailVerification, Client, Freelancer, Skills, FreelancerProject, ProjectPicture, ActiveJob, Proposal
 from django.utils import timezone
+from django.db.models import Sum
 
 country_abbreviations = {
     'United State': 'US',
@@ -99,7 +100,7 @@ class SkillsSerializer(serializers.ModelSerializer):
         fields = ["name"]   
         
 class FreelancerSerializer(serializers.ModelSerializer):
-    total_earning = serializers.ReadOnlyField()
+    total_earning = serializers.SerializerMethodField()
     total_jobs_completed = serializers.ReadOnlyField()
     
     skills = serializers.ListField(child=serializers.CharField(), write_only=True, required = False, default = list)
@@ -107,6 +108,16 @@ class FreelancerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Freelancer
         fields = ["profile", "bio", "bio_skill", "hourly_rate", "skills", "total_earning", "total_jobs_completed"]
+        
+    def get_total_earning(self, obj):
+        # If 'total_earning' was annotated, return it
+        if hasattr(obj, 'total_earning'):
+            return obj.total_earning
+        
+        # If not, calculate it dynamically
+        return obj.assigned_jobs.filter(deliverables__status='delivered').aggregate(
+            total_earning=Sum('deliverables__assigned_job__job__amount')
+        )['total_earning'] or 0
         
     def update(self, instance, validated_data):
         instance.bio = validated_data.get("bio", instance.bio)
@@ -230,3 +241,32 @@ class ClientProfilePageSerializer(serializers.ModelSerializer):
     def get_client(self, obj):
         client_serializer = ClientSerializer(obj)
         return client_serializer.data
+    
+class ActiveJobSerializer(serializers.ModelSerializer):
+    skills_required = serializers.ListField(child = serializers.CharField())
+    class Meta:
+        model = ActiveJob
+        fields = "__all__"
+    
+    def validate(self, data):
+        if "client" not in data:
+            raise serializers.ValidationError({"client": "This field is required."})
+        client = data["client"]
+        available_balance =  client.profile.available_balance
+        if data["duration"] < 0 or data["amount"] < 0:
+            raise serializers.ValidationError({"duration/amount" : "should be greater than zero"})
+        if data["amount"] > available_balance:
+            raise serializers.ValidationError({"erorr" : "Insufficient amount"})
+        return data
+    
+    def create(self, validated_data):
+        amount = validated_data.get("amount")
+        client = validated_data.get("client")
+        client.profile.available_balance -= amount
+        client.profile.save()
+        return super().create(validated_data)
+    
+class ProposalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Proposal
+        fields = "__all__"
