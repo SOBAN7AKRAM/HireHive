@@ -23,9 +23,9 @@ const Header = () => {
                         <NavLinks/>
                         <SearchForm/>
                     </div>
-                    {isAuthenticated && <Buttons/>}
-                    {!isAuthenticated && <LogOut/>}
-                    {!isAuthenticated && <ProfileLogo/>}
+                    {!isAuthenticated && <Buttons/>}
+                    {isAuthenticated && <LogOut/>}
+                    {isAuthenticated && <ProfileLogo/>}
                 </div>
             </nav>
         </header>

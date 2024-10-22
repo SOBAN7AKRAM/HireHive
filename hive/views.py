@@ -167,19 +167,49 @@ def sign_up(request):
                         raise ValueError("Invalid Role")
                     
                 token, _ = Token.objects.get_or_create(user=user)
+                
                 return Response({
                     "success": "Account created successfully",
+                    "profile" : profile.id,
                     "token": token.key,
                     "user_id": user.id,
                     "email": user.email,
                     "location" : profile.location,
-                    "role" : role,
+                    f"{role}" : freelancer_serializer.data.get("id") if role =="freelancer" else client_serializer.data.get("id"),
                     "first_name" : user.first_name,
                     "last_name" : user.last_name,
                 }, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST) 
     return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(["GET"])
+def get_user(request):
+    if request.user.is_authenticated:
+        user = request.user
+        profile = Profile.objects.get(user = user)
+        try:
+            freelancer = Freelancer.objects.get(profile = profile)
+            role = "freelancer"
+        except Freelancer.DoesNotExist:
+            pass
+        try:
+            client = Client.objects.get(profile = profile)
+            role = "client"
+        except Client.DoesNotExist:
+            pass
+        return Response({
+                    "success": "User loaded successfully",
+                    "profile" : profile.id,
+                    "user_id": user.id,
+                    "email": user.email,
+                    "location" : profile.location,
+                    f"{role}" : freelancer.id if role =="freelancer" else client.id,
+                    "first_name" : user.first_name,
+                    "last_name" : user.last_name,
+        }, status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_401_UNAUTHORIZED)
+    
+        
 
 @api_view(["POST"])
 def log_out(request):
@@ -199,21 +229,28 @@ def sign_in(request):
         if not user.check_password(password):
             return Response({"error": "Invalid Credentials"}, status=status.HTTP_400_BAD_REQUEST)
         profile = Profile.objects.get(user = user)
-        if Freelancer.objects.filter(profile = profile).exists():
-            role = 'freelancer'
-        elif Client.objects.filter(profile = profile).exists():
-            role = 'client'
+        try:
+            freelancer = Freelancer.objects.get(profile = profile)
+            role = "freelancer"
+        except Freelancer.DoesNotExist:
+            pass
+        try:
+            client = Client.objects.get(profile = profile)
+            role = "client"
+        except Client.DoesNotExist:
+            pass
         token, _ = Token.objects.get_or_create(user=user)
         return Response({
                     "success": "Signed in successfully",
-                    "token": token.key,
+                    "profile" : profile.id,
                     "user_id": user.id,
                     "email": user.email,
+                    "token": token.key,
                     "location" : profile.location,
-                    "role" : role,
+                    f"{role}" : freelancer.id if role =="freelancer" else client.id,
                     "first_name" : user.first_name,
                     "last_name" : user.last_name,
-                }, status=status.HTTP_200_OK)
+        }, status=status.HTTP_200_OK)
     except User.DoesNotExist:
         return Response({"error" : "Invalid Credentials"}, status=status.HTTP_400_BAD_REQUEST)
 

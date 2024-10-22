@@ -26,11 +26,11 @@ const SignUpForm = (props) => {
 
         const formValues = {
             role: props.user,
-            firstName: data.get('firstName'),
-            lastName: data.get('lastName'),
+            first_name: data.get('firstName'),
+            last_name: data.get('lastName'),
             email: data.get('email'),
             password: data.get('pswd'),
-            country: data.get('country'),
+            location: data.get('country'),
         };
         setSignUpData(formValues);
         navigate('/sign_up/otp')

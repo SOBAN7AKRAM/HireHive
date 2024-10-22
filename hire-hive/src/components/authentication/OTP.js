@@ -11,7 +11,7 @@ const OTP = () => {
     const csrfToken = useCsrfToken();
 
     // to set the user to authenticate
-    const setIsAuthenticated = useAuth()
+    const {setIsAuthenticated, user, setUser} = useAuth()
 
     // to store user otp input for verification
     const [otp, setOtp] = useState();
@@ -45,6 +45,7 @@ const OTP = () => {
     // to send otp on first render
     useEffect(() => {
         fetchOTP();
+        console.log(JSON.stringify(signUpData))
     }, [signUpData.email, csrfToken])
 
     const minutes = Math.floor(time / 60);
@@ -76,8 +77,11 @@ const OTP = () => {
         })
         .then(response => response.json())
         .then(data => {
-            if (data.Success){
-                alert(data.Success)
+            console.log(data)
+            if (data.success){
+                setUser(data)
+                setIsAuthenticated(true)
+                localStorage.setItem('jwt_token', data.token);
                 navigate("/")
             } 
             else{
@@ -96,12 +100,12 @@ const OTP = () => {
                 "X-CSRFToken": csrfToken
             },
             credentials: "include",
-            body: JSON.stringify({ "otp": otp, "signUpData" : signUpData })
+            body: JSON.stringify({ "otp": otp, "email" : signUpData.email })
         })
         .then(response => response.json())
         .then(data => {
-            if (data.Success){
-                // postSignUpData();
+            if (data.success){
+                postSignUpData();
                 console.log(data.Success);
 
             } 

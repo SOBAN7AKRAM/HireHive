@@ -4,7 +4,7 @@ const SelectCountry = () => {
     useEffect(() => {
         fetch('http://localhost:8000/get_country')
             .then(response => response.json())
-            .then(data => setCountries(data.countries))
+            .then(data => setCountries(data))
             .catch(err => console.log(err))
     }, [])
 
@@ -12,7 +12,7 @@ const SelectCountry = () => {
         <>
             <label for="country" className="form-label">Country</label>
             <select name="country" className="form-select form-control">
-                {countries.map((country, index) => (
+                {countries?.map((country, index) => (
                     <option key={index}>{country}</option>
                 ))}
             </select>

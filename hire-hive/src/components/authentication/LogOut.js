@@ -6,12 +6,21 @@ const LogOut = () => {
     const navigate = useNavigate();
 
     function handleClick() {
-        if (isAuthenticated) {
-            fetch('http://localhost:8000/log_out')
+        const token = localStorage.getItem('jwt_token');
+        if (isAuthenticated || token) {
+            fetch('http://localhost:8000/logout', {
+                method: "POST",
+                headers: {
+                    'Content-Type' : 'application/json',
+                    'Authorization': `Token ${token}`,
+                }
+            })
                 .then(response => response.json())
                 .then(data => {
+                    localStorage.removeItem('jwt-token')
                     setIsAuthenticated(false);
                     setUser(null);
+                    console.log(data)
                     navigate('/');
                 })
                 .catch(err => console.log(err))
