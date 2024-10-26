@@ -7,7 +7,7 @@ const SignUp = (props) => {
         <div className="signUpDiv">
             <div className="signUpContainer">
                 <h1 className="heading">{props.selectedOption === 'client' ? "Sign up to hire talent" : "Sign up to find work you love"}</h1>
-                <GoogleLogo/>
+                <GoogleLogo role = {props.selectedOption}/>
                 <OR />
                 <SignUpForm user={props.selectedOption} />
                 <div className='boxContainer'>

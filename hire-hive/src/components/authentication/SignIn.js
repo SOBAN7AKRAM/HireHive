@@ -15,7 +15,6 @@ const SignIn = () => {
 
     
     function postSignInData(data) {
-        console.log(data)
         fetch("http://localhost:8000/sign_in", {
             method: "POST",
             headers: {
@@ -73,7 +72,7 @@ const SignIn = () => {
                     <div className="mt-4 mb-4 w-100">
                         <OR />
                     </div>
-                    <GoogleLogo />
+                    <GoogleLogo role={""}/>
                     <div className="notHaveAccount mt-5">
                         <div></div>
                         <span className="d-block">Don't have an HireHive account?</span>

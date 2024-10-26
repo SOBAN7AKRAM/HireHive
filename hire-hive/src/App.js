@@ -18,16 +18,18 @@ import JobsList from './components/work/JobsList.js';
 import JobDetails from './components/work/JobDetails.js';
 import JobPosting from './components/work/JobPosting.js';
 import Inbox from './components/inbox/Inbox.js';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 
 function App() {
 
 
   return (
-    <AuthProvider>
-      <div className="App">
-        <BrowserRouter>
-          <Layout>
+    <GoogleOAuthProvider clientId="38015767059-coktn4rrad60pj0n9b38ojrb4cpe3sn7.apps.googleusercontent.com">
+      <AuthProvider>
+        <div className="App">
+          <BrowserRouter>
+            <Layout>
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/sign_up" element={<SignUpLayout />}>
@@ -36,23 +38,24 @@ function App() {
                 </Route>
                 <Route path='/log_in' element={<SignIn />} />
                 <Route path='/how_to_hire' element={<HowToHire />} />
-                <Route path='/contact_us' element={<ContactUs/>}/>
-                <Route path="/freelancer/profile/:id" element={<FreelancerProfile/>}/>
-                <Route path='/client/profile/:id' element={<ClientProfile/>}/>
-                <Route path='/profile/:id/setting' element={<ProfileSetting/>}/>
-                <Route path='/forget_password/'  element={<ForgetPassword/>}/>
+                <Route path='/contact_us' element={<ContactUs />} />
+                <Route path="/freelancer/profile/:id" element={<FreelancerProfile />} />
+                <Route path='/client/profile/:id' element={<ClientProfile />} />
+                <Route path='/profile/:id/setting' element={<ProfileSetting />} />
+                <Route path='/forget_password/' element={<ForgetPassword />} />
                 <Route path="/find_talents" element={<TalentList />} />
                 <Route path="/search/talent" element={<TalentList />} />
                 <Route path="/find_work" element={<JobsList />} />
                 <Route path="/search/jobs" element={<JobsList />} />
                 <Route path="/job/:id/details" element={<JobDetails />} />
-                <Route path='/job_posting/' element={<JobPosting/>}/>
-                <Route path='/inbox/:id' element={<Inbox/>} />
+                <Route path='/job_posting/' element={<JobPosting />} />
+                <Route path='/inbox/:id' element={<Inbox />} />
               </Routes>
-          </Layout>
-        </BrowserRouter>
-      </div>
-    </AuthProvider>
+            </Layout>
+          </BrowserRouter>
+        </div>
+      </AuthProvider>
+    </GoogleOAuthProvider>
   );
 }
 

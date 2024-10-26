@@ -43,25 +43,23 @@ def get_csrf_token(request):
     # Return CSRF token as JSON response
     return Response({'csrfToken': csrf_token})
 
+
 @api_view(['POST'])
 def google_sign_up_or_sign_in(request):
     data = request.data
-    google_token = data.get('token')  # The ID token sent from the front-end
+    email = data.get('email')
+    first_name = data.get("first_name")
+    last_name = data.get("last_name")
+    role = data.get("role")
+    print(data)
 
     try:
-        idinfo = id_token.verify_oauth2_token(google_token, google.auth.transport.requests.Request(), settings.GOOGLE_CLIENT_ID)
-        email = idinfo['email']
-        first_name = idinfo.get('given_name', '')
-        last_name = idinfo.get('family_name', '')
-        role = data.get('role')
-
-        try:
-            user = User.objects.get(email=email)
-            new_user = False 
-        except User.DoesNotExist:
-            new_user = True 
-
-            with transaction.atomic():
+        user = User.objects.get(email=email)
+        new_user = False
+    except User.DoesNotExist:
+        new_user = True
+        with transaction.atomic():
+            try:
                 user = User.objects.create_user(
                     email=email,
                     first_name=first_name,
@@ -73,50 +71,52 @@ def google_sign_up_or_sign_in(request):
                 # Create user profile as part of sign-up
                 profile_data = {
                     "user": user.id,
-                    "location": country_abbreviations.get("PK"), 
+                    "location": country_abbreviations.get("Pakistan"), 
                     "available_balance": 100 
                 }
                 profile_serializer = ProfileSerializer(data=profile_data)
-                if profile_serializer.is_valid():
-                    profile = profile_serializer.save()
-                else:
-                    return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                profile_serializer.is_valid(raise_exception=True)  # Raises an exception if validation fails
+                profile = profile_serializer.save()
 
                 # Create Freelancer or Client model based on role
                 if role == "freelancer":
                     Freelancer.objects.create(profile=profile)
                 elif role == "client":
                     Client.objects.create(profile=profile)
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        if not new_user:
-            # Check if Profile exists for the existing user
-            try:
-                profile = Profile.objects.get(user=user)
-                if Freelancer.objects.filter(profile = profile).exists():
-                    role = 'freelancer'
-                elif Client.objects.filter(profile = profile).exists():
-                    role = 'client'
-            except Profile.DoesNotExist:
-                return Response({"error": "User profile not found."}, status=status.HTTP_404_NOT_FOUND)
+    # If user exists, check for profile
+    try:
+        profile = Profile.objects.get(user=user)
+    except Profile.DoesNotExist:
+        return Response({"error": "User profile not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        # Retrieve or create an authentication token for the user
-        token, _ = Token.objects.get_or_create(user=user)
+    # Determine role based on existing profile
+    try:
+        freelancer = Freelancer.objects.get(profile=profile)
+        role = "freelancer"
+    except Freelancer.DoesNotExist:
+        try:
+            client = Client.objects.get(profile=profile)
+            role = "client"
+        except Client.DoesNotExist:
+            return Response({"error": "User has no associated role."}, status=status.HTTP_404_NOT_FOUND)
 
-        return Response({
-            "success": "Account created successfully" if new_user else "Signed in successfully",
-            "token": token.key,
-            "user_id": user.id,
-            "email": user.email,
-            "location" : profile.location,
-            "role" : role,
-            "first_name" : user.first_name,
-            "last_name" : user.last_name,
-        }, status=status.HTTP_201_CREATED if new_user else status.HTTP_200_OK)
-    
-    except ValueError:
-        return Response({"error": "Invalid Google token"}, status=status.HTTP_400_BAD_REQUEST)
-    except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    # Retrieve or create an authentication token for the user
+    token, _ = Token.objects.get_or_create(user=user)
+    return Response({
+        "success": "Account created successfully" if new_user else "Signed in successfully",
+        "token": token.key,
+        "user_id": user.id,
+        "email": user.email,
+        "location": profile.location,
+        f"{role}": freelancer.id if role == "freelancer" else client.id,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+    }, status=status.HTTP_201_CREATED if new_user else status.HTTP_200_OK)
+
+
 
 @api_view(['POST'])
 def sign_up(request):
