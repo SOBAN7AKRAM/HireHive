@@ -4,27 +4,8 @@ import TimeByCountry from "./TimeByCountry";
 import { Link } from "react-router-dom";
 import AvailableBalance from "./AvailableBalance";
 
-const GeneralDetail = ({ id, user, profileUser, setProfileUser, isSelf, setIsSelf }) => {
-    const [hasImage, setHasImage] = useState(false);
-    useEffect(() => {
-        if (user && user.id === id && !isSelf) {
-            setIsSelf(true);
-            setProfileUser(user)
-        }
-        else {
-            setIsSelf(false);
-            getUser()
-        }
-        // if (!profileUser) {
-        //     alert("Something Went Wrong");
-        // }
-    })
-    function getUser() {
-        // fetch(`http://localhost:8000/get_user/${id}`)
-        //     .then(response => response.json())
-        //     .then(data => setProfileUser(data))
-        //     .catch(err => console.log(err))
-    }
+const GeneralDetail = ({ id, profileUser, setProfileUser, isSelf}) => {
+
     return (
         <div className="generalDetailContainer d-flex justify-content-between align-items-center">
             <div className="d-flex gap-3">
@@ -32,14 +13,12 @@ const GeneralDetail = ({ id, user, profileUser, setProfileUser, isSelf, setIsSel
                     <ProfilePicture
                         profileUser={profileUser}
                         setProfileUser={setProfileUser}
-                        isSelf={true}
-                        hasImage={hasImage}
-                        setHasImage={setHasImage}
+                        isSelf={isSelf}
                     />
                 </div>
                 <div>
-                    <h2>M Soban A</h2>
-                    <TimeByCountry country={"Pakistan"} />
+                    <h2>{profileUser?.user?.first_name +' '+ profileUser?.user?.last_name}</h2>
+                    <TimeByCountry country={profileUser?.profile?.location} />
                 </div>
             </div>
             <div>
@@ -48,7 +27,7 @@ const GeneralDetail = ({ id, user, profileUser, setProfileUser, isSelf, setIsSel
                         {true && <Link className="btn btn-lg btn-primary" to={`/profile/${id}/setting`}>Profile Setting</Link>}
                     </div>
                     <div className="mt-2">
-                        <AvailableBalance />
+                        <AvailableBalance currentBalance={profileUser?.profile?.available_balance}/>
                     </div>
                 </div>
             </div>

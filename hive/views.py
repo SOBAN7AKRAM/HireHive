@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-# from .serializers import UserSerializer, EmailVerificationSerializer, ProfileSerializer, ClientSerializer, FreelancerSerializer, FreelancerProjectSerializer, FreelancerProfilePageSerializer, 
+from .serializers import UserSerializer, EmailVerificationSerializer, ProfileSerializer, ClientSerializer, FreelancerSerializer, FreelancerProjectSerializer, FreelancerProfilePageSerializer
 from .serializers import *
 from rest_framework import serializers
 from .models import Profile, EmailVerification, User, Freelancer, Client, FreelancerProject
@@ -21,6 +21,8 @@ from rest_framework.pagination import PageNumberPagination
 import google.auth.transport.requests
 from django.db.models import Q, Sum
 import re
+import base64
+from django.core.files.base import ContentFile
 
 GOOGLE_CLIENT_ID = '38015767059-coktn4rrad60pj0n9b38ojrb4cpe3sn7.apps.googleusercontent.com'
 
@@ -311,9 +313,9 @@ def verify_otp(request):
 def update_profile(request):
     if request.user.is_authenticated:
         data = request.data
-        user_id = data.get("user_id")
+        user_id = data.get("user")
         if not user_id:
-            print("id")
+            print("user not found")
             return Response({'error': "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
         try:
             user = User.objects.get(pk = user_id)
@@ -321,9 +323,12 @@ def update_profile(request):
         except (User.DoesNotExist, Profile.DoesNotExist):
             return Response({'error': "profile not found"}, status=status.HTTP_404_NOT_FOUND)
         
-        if data.get("location"):
-            data["location"] = country_abbreviations.get(data["location"].title())
-        profile_ser = ProfileSerializer(profile, data = data, partial = True)
+        picture_data = data.get("picture")
+        if picture_data and picture_data.startswith("data:image/"):
+            format, imgstr = picture_data.split(';base64,')  # Split the data
+            ext = format.split('/')[-1]  # Extract the file extension (e.g., jpg, png)
+            data['picture'] = ContentFile(base64.b64decode(imgstr), name=f"profile_picture.{ext}")
+        profile_ser = ProfileSerializer(profile, data = data, partial = True, context={'request': request})
         if profile_ser.is_valid():
             profile_ser.save()
             return Response(profile_ser.data, status=status.HTTP_200_OK)
@@ -380,7 +385,7 @@ def get_freelancer_profile_page(request, freelancer_id):
         freelancer = Freelancer.objects.get(id = freelancer_id)
     except Freelancer.DoesNotExist:
         return Response({"error" : "Freelancer not found!"}, status=status.HTTP_404_NOT_FOUND)
-    serializer = FreelancerProfilePageSerializer(freelancer)
+    serializer = FreelancerProfilePageSerializer(freelancer, context={'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(["GET"])

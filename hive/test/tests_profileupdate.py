@@ -25,7 +25,7 @@ class ProfileUpdateTestCases(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
         
     def test_location_update(self):
-        response = self.client.put(self.url, {'location': "germany", "user_id" : self.user.pk}, format="json")
+        response = self.client.put(self.url, {'location': "DE", "user" : self.user.pk}, format="json")
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Profile.objects.count(), 1)
@@ -74,7 +74,7 @@ class FreelancerUpdateTests(APITestCase):
         
     def test_invalid_user(self):
         invalid_freelancer_id = reverse("update_freelancer", kwargs={"freelancer_id" : 100})
-        response = self.client.put(invalid_freelancer_id, {"skills" : ["python", "javascript", "react"]}, format="json")
+        response = self.client.put(invalid_freelancer_id, {"skills_input" : ["python", "javascript", "react"]}, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(Skills.objects.count(), 0)
         

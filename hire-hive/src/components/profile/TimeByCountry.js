@@ -6,15 +6,15 @@ const TimeByCountry = ({country}) => {
     const [currentTime, setCurrentTime] = useState('');
 
     const countryToTimezone = {
-        'United State': 'America/New_York',
-        'Pakistan': 'Asia/Karachi',
-        'India': 'Asia/Kolkata',
-        'United Kingdom': 'Europe/London',
-        'Germany': 'Europe/Berlin',
-        'Russia': 'Europe/Moscow',
-        "Saudi Arabia": 'Asia/Dubai',
-        "Qatar": 'Asia/Qatar',
-        "China": 'Asia/Shanghai',
+        'US': 'America/New_York',
+        'PK': 'Asia/Karachi',
+        'IN': 'Asia/Kolkata',
+        'GB': 'Europe/London',
+        'DE': 'Europe/Berlin',
+        'RU': 'Europe/Moscow',
+        "SA": 'Asia/Dubai',
+        "QA": 'Asia/Qatar',
+        "CN": 'Asia/Shanghai',
     };
 
     useEffect(() => {

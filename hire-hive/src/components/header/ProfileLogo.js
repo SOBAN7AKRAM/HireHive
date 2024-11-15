@@ -14,11 +14,12 @@ const ProfileLogo = () => {
 
     function handleClick() {
         if (user){
-            if (user.role === 'freelancer'){
-                navigate(`/freelancer/profile/${user.id}`)
+            if (user.freelancer){
+                navigate(`/freelancer/profile/${user.freelancer}`)
             }
             else{
-                navigate(`/client/profile/${user.id}`)
+                console.log(user)
+                navigate(`/client/profile/${user.client}`)
             }
         }
     }

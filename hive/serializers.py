@@ -18,7 +18,7 @@ country_abbreviations = {
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'password']
+        fields = ["id", 'first_name', 'last_name', 'email', 'password']
         extra_kwargs = {
             'password' : {'write_only': True}
         }
@@ -72,7 +72,7 @@ class EmailVerificationSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ["user", "picture", "available_balance", "location"]
+        fields = ["id", "user", "picture", "available_balance", "location"]
         
     def update(self, instance, validated_data):
         instance.picture = validated_data.get('picture', instance.picture)
@@ -81,13 +81,18 @@ class ProfileSerializer(serializers.ModelSerializer):
         
         instance.save()
         return instance
+    def get_picture(self, obj):
+        request = self.context.get('request')  # Access the request object to build the full URL
+        if obj.picture and hasattr(obj.picture, 'url'):
+            return request.build_absolute_uri(obj.picture.url) if request else obj.picture.url
+        return None
         
 class ClientSerializer(serializers.ModelSerializer):
     total_spent = serializers.ReadOnlyField()
     total_jobs_posted = serializers.ReadOnlyField()
     class Meta:
         model = Client
-        fields = ["profile", "company_name", "total_spent", "total_jobs_posted"]
+        fields = ["id", "profile", "company_name", "total_spent", "total_jobs_posted"]
     
     def update(self, instance, validated_data):
         instance.company_name = validated_data.get("company_name", instance.profile)
@@ -97,43 +102,47 @@ class ClientSerializer(serializers.ModelSerializer):
 class SkillsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Skills
-        fields = ["name"]   
-        
+        fields = ["id", "name"]   
+
 class FreelancerSerializer(serializers.ModelSerializer):
     total_earning = serializers.SerializerMethodField()
     total_jobs_completed = serializers.ReadOnlyField()
-    
-    skills = serializers.ListField(child=serializers.CharField(), write_only=True, required = False, default = list)
-    
+    skills = serializers.ListField(child=serializers.CharField(), write_only=True, required=False)  # For updates
+    skills_display = serializers.SerializerMethodField()  # For GET requests
+
     class Meta:
         model = Freelancer
-        fields = ["profile", "bio", "bio_skill", "hourly_rate", "skills", "total_earning", "total_jobs_completed"]
-        
+        fields = ["id", "profile", "bio", "bio_skill", "hourly_rate", "skills", "skills_display", "total_earning", "total_jobs_completed"]
+
     def get_total_earning(self, obj):
-        # If 'total_earning' was annotated, return it
         if hasattr(obj, 'total_earning'):
             return obj.total_earning
-        
-        # If not, calculate it dynamically
         return obj.assigned_jobs.filter(deliverables__status='delivered').aggregate(
             total_earning=Sum('deliverables__assigned_job__job__amount')
         )['total_earning'] or 0
-        
-    def update(self, instance, validated_data):
-        instance.bio = validated_data.get("bio", instance.bio)
-        instance.bio_skill = validated_data.get("bio_skill", instance.bio)
-        instance.hourly_rate = validated_data.get("hourly_rate", instance.hourly_rate)
 
-        skills_data = validated_data.get("skills")
+    def get_skills_display(self, obj):
+        # Return a list of skill names
+        return [skill.name for skill in obj.skills.all()]
+
+    def create(self, validated_data):
+        skills_data = validated_data.pop("skills", [])
+        freelancer = super().create(validated_data)
+        if skills_data:
+            skills_objects = [Skills.objects.get_or_create(name=name.lower())[0] for name in skills_data]
+            freelancer.skills.set(skills_objects)
+        return freelancer
+
+    def update(self, instance, validated_data):
+        skills_data = validated_data.pop("skills", None)  # Use skills for updates
+        instance = super().update(instance, validated_data)
         if skills_data is not None:
-            skills_objects = []
-            for name in skills_data:
-                skill, created = Skills.objects.get_or_create(name = name.lower())
-                skills_objects.append(skill)
-            instance.skills.set(skills_objects)
-        instance.save()
-        
+            skills_objects = [Skills.objects.get_or_create(name=name.lower())[0] for name in skills_data]
+            instance.skills.set(skills_objects)  # Update the skills relationship
         return instance
+
+  
+
 
     
 
@@ -203,13 +212,10 @@ class FreelancerProfilePageSerializer(serializers.ModelSerializer):
         
     def get_user(self, obj):
         user_serializer = UserSerializer(obj.profile.user)
-        return {
-            "first_name" : user_serializer.data["first_name"],
-            "last_name" : user_serializer.data["last_name"],
-        }
+        return user_serializer.data
         
     def get_profile(self, obj):
-        profile_serializer = ProfileSerializer(obj.profile)
+        profile_serializer = ProfileSerializer(obj.profile, context = self.context)
         return profile_serializer.data
     def get_freelancer(self, obj):
         Freelancer_serializer = FreelancerSerializer(obj)
